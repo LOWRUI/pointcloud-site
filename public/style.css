@@ -248,6 +248,96 @@ button, input, select { font: inherit; }
 
 .reading__actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-xs); }
 
+/* ---------- the format picker ---------- */
+/* A platform that ships several formats opens a menu instead of guessing which
+ * file the visitor wants. It expands in flow, so the card's rounded clipping
+ * cannot cut the list off, and it stays usable with no script at all. */
+
+.picker { inline-size: 100%; }
+
+.picker > summary {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2xs);
+  cursor: pointer;
+  list-style: none;
+}
+
+.picker > summary::-webkit-details-marker { display: none; }
+
+.picker > summary::marker { content: ""; }
+
+.picker[open] > summary {
+  background: var(--color-paper-3);
+  border-color: var(--color-muted);
+}
+
+.picker[open] > .btn--primary {
+  background: var(--color-accent);
+  border-color: var(--color-ink);
+}
+
+.btn__caret {
+  inline-size: 5px;
+  block-size: 5px;
+  border-inline-end: var(--rule-hair) solid currentColor;
+  border-block-end: var(--rule-hair) solid currentColor;
+  transform: rotate(45deg) translateY(-1px);
+  transition: transform var(--dur-micro) var(--ease-out);
+}
+
+.picker[open] .btn__caret { transform: rotate(225deg) translateY(-1px); }
+
+/* An explicit display would override the closed-state rule the browser applies
+ * to <details>, so the menu is hidden here and only turned on when open. */
+.picker__menu {
+  display: none;
+  gap: var(--rule-hair);
+  margin-block-start: var(--space-xs);
+  background: var(--color-rule);
+  border: var(--rule-hair) solid var(--color-rule);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+}
+
+.picker[open] .picker__menu { display: grid; }
+
+.picker__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-paper-3);
+  color: var(--color-ink);
+  text-decoration: none;
+  transition: background-color var(--dur-micro) var(--ease-out);
+}
+
+.picker__item:hover { background: var(--color-paper-2); }
+
+.picker__text { display: grid; gap: var(--space-3xs); min-inline-size: 0; }
+
+.picker__label {
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+}
+
+.picker__item:hover .picker__label { color: var(--color-accent); }
+
+.picker__hint {
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+}
+
+.picker__size {
+  font-family: var(--font-outlier);
+  font-variant-numeric: tabular-nums slashed-zero;
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+  white-space: nowrap;
+}
+
 /* ---------- sections ---------- */
 
 .section { padding-block: var(--section-gap); border-bottom: var(--rule-hair) solid var(--color-rule); }

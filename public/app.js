@@ -38,6 +38,18 @@
     apk: "apk",
     tarball: "tar.gz",
   };
+  // Said under each format in the picker, so nobody downloads a .deb to a
+  // distribution that cannot install it.
+  const KIND_HINT = {
+    exe: "Windows 安装版",
+    msi: "Windows 安装版",
+    deb: "Debian、Ubuntu 系",
+    rpm: "Fedora、openEuler 系",
+    appimage: "免安装，任意发行版",
+    dmg: "macOS 安装包",
+    apk: "Android 安装包",
+    tarball: "tar.gz 压缩包",
+  };
 
   const assetUrl = (id) => `https://cdn.crabnebula.app/asset/${id}`;
   const groupMeta = (key) => GROUPS.find((g) => g.key === key) ?? null;
@@ -120,6 +132,48 @@
     return best;
   }
 
+  // A platform with a single build is one link; a platform that ships several
+  // formats gets a picker, so the download button never has to choose for the
+  // visitor between a .deb and an AppImage. It is a <details>, so it also opens
+  // without the script.
+  function actionFor(meta, group, filled) {
+    if (group.assets.length === 1) {
+      const asset = group.assets[0];
+      const link = el("a", filled ? "btn btn--primary" : "btn btn--quiet");
+      link.href = assetUrl(asset.id);
+      link.setAttribute("download", "");
+      link.textContent = `下载 ${meta.label} 版`;
+      return link;
+    }
+
+    const picker = el("details", "picker");
+    picker.dataset.picker = group.assets[0].platform ?? meta.key;
+
+    const summary = el("summary", filled ? "btn btn--primary btn--picker" : "btn btn--quiet btn--picker");
+    summary.append(`下载 ${meta.label} 版`);
+    summary.append(el("span", "btn__caret"));
+    picker.append(summary);
+
+    const menu = el("div", "picker__menu");
+    // A disclosure with plain links, not an ARIA menu: there is no roving focus
+    // here, and the links are reachable with Tab like any other link.
+    for (const asset of group.assets) {
+      const item = el("a", "picker__item");
+      item.href = assetUrl(asset.id);
+      item.setAttribute("download", "");
+
+      const text = el("span", "picker__text");
+      text.append(el("span", "picker__label", KIND_LABEL[asset.kind] ?? asset.kind));
+      text.append(el("span", "picker__hint", KIND_HINT[asset.kind] ?? ""));
+
+      item.append(text);
+      item.append(el("span", "picker__size", sizeText(asset.bytes)));
+      menu.append(item);
+    }
+    picker.append(menu);
+    return picker;
+  }
+
   function readingCard(meta, group, withPrimary) {
     const card = el("div", "reading");
 
@@ -131,22 +185,12 @@
 
     const when = el("div", "reading__when");
     when.append(el("span", "", dateText(group.publishedAt)));
-    for (const asset of group.assets) {
-      when.append(el("span", "", sizeText(asset.bytes)));
-      when.append(el("span", "", KIND_LABEL[asset.kind] ?? asset.kind));
-    }
+    when.append(el("span", "", group.assets.length > 1 ? `${group.assets.length} 种格式` : `${sizeText(group.assets[0]?.bytes)} ${KIND_LABEL[group.assets[0]?.kind] ?? ""}`));
     card.append(when);
 
     const actions = el("div", "reading__actions");
-    group.assets.forEach((asset, index) => {
-      // One filled action on the whole page: the first build of the first OS.
-      const filled = withPrimary && index === 0;
-      const link = el("a", filled ? "btn btn--primary" : "btn btn--quiet");
-      link.href = assetUrl(asset.id);
-      link.setAttribute("download", "");
-      link.textContent = index === 0 ? `下载 ${meta.label} 版` : `${KIND_LABEL[asset.kind] ?? asset.kind} 版本`;
-      actions.append(link);
-    });
+    // One filled action on the whole page: the first build of the first OS.
+    actions.append(actionFor(meta, group, withPrimary));
     card.append(actions);
     return card;
   }
@@ -285,6 +329,20 @@
     return rows;
   }
 
+  // Close on a click elsewhere, on Escape, and right after a format is chosen,
+  // so the menu never lingers over the next section. Every format link is a real
+  // link, so a chosen item closes the menu and the download starts anyway.
+  function closePickers() {
+    for (const picker of document.querySelectorAll("details.picker[open]")) picker.open = false;
+  }
+
+  function collapsePickers(event) {
+    const inside = event.target.closest?.(".picker");
+    const chosen = event.target.closest?.(".picker__item");
+    if (inside && !chosen) return;
+    closePickers();
+  }
+
   function renderReleases(data) {
     const body = document.querySelector(".releases tbody");
     if (!body) return;
@@ -313,6 +371,10 @@
       renderReleases(data);
       renderPlatformBar(data);
       renderStamp(data);
+      document.addEventListener("click", collapsePickers);
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") closePickers();
+      });
     } catch {
       // The seeded markup stays: the page is complete without this step.
     }
