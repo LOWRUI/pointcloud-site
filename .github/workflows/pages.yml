@@ -1,0 +1,61 @@
+name: Publish download site
+
+on:
+  # Every push that touches the page, the data file or the generator.
+  push:
+    branches: [main]
+    paths:
+      - "public/**"
+      - "scripts/fetch-releases.mjs"
+      - ".github/workflows/pages.yml"
+  # Refresh the snapshot from CrabNebula Cloud once a day, and on demand.
+  schedule:
+    - cron: "17 2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      # Refresh public/releases.json when a Cloud token is configured. The script
+      # exits 0 and changes nothing when the variable is empty, so the
+      # checked-in snapshot is published as-is until a secret is added.
+      - name: Refresh the release snapshot
+        env:
+          CRABNEBULA_TOKEN: ${{ secrets.CRABNEBULA_TOKEN }}
+        run: node scripts/fetch-releases.mjs
+
+      - name: Fail if the page or its data is missing
+        run: test -f public/index.html && test -f public/releases.json
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
