@@ -7,10 +7,6 @@
     "slug": "pointcloud-studio",
     "cloudUrl": "https://web.crabnebula.cloud/hbzsy/pointcloud-studio"
   },
-  "latest": {
-    "prod": "0.3.27",
-    "alpha": "0.3.23-alpha.9"
-  },
   "latestByPlatform": {
     "windows-x86_64": { "version": "0.3.26", "assetId": "01M6JG9QND6JW9GNFZ8DGNK6ZF" },
     "linux-x86_64": { "version": "0.3.27", "assetId": "01M6MTAGN7XD2X8NRFFYG6XDGV" }

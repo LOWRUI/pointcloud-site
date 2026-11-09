@@ -197,11 +197,6 @@ async function main() {
     }
   }
 
-  const channels = {};
-  for (const release of out) {
-    if (!channels[release.channel]) channels[release.channel] = release.version;
-  }
-
   const next = {
     generatedAt: new Date().toISOString(),
     generator: "scripts/fetch-releases.mjs",
@@ -211,10 +206,9 @@ async function main() {
       slug: APP,
       cloudUrl: `https://web.crabnebula.cloud/${ORG}/${APP}`,
     },
-    latest: {
-      ...(existing.latest ?? {}),
-      ...channels,
-    },
+    // The page shows a plain release history and filters by platform, so the
+    // per-channel head (prod / alpha) is not carried any more; "channel" on each
+    // release still says which one it came from.
     latestByPlatform,
     releases: out,
   };

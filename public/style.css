@@ -1,6 +1,6 @@
 /* Hallmark · shape: Index · genre: modern-minimal · theme: Console (graphite) · deal: manual
  * hero: Counter, the readings panel is the visual, the head on five of twelve columns
- * nav: edge-aligned, a wordmark, four anchors and one action · footer: colophon
+ * nav: edge-aligned, a wordmark and three anchors · footer: mast and stamp only
  * imagery: the running app, captured from the product · signature: each platform's newest build set large in the measured face, beside its size and date
  * axes: 17/500/late · contrast: pass · fold: pass · v2.0.0 */
 
@@ -287,12 +287,12 @@ button, input, select { font: inherit; }
   table-layout: fixed;
 }
 
-.releases th:nth-child(1), .releases td:nth-child(1) { width: 18%; }
+.releases th:nth-child(1), .releases td:nth-child(1) { width: 21%; }
 .releases th:nth-child(2), .releases td:nth-child(2) { width: 23%; }
-.releases th:nth-child(3), .releases td:nth-child(3) { width: 28%; }
-.releases th:nth-child(4), .releases td:nth-child(4) { width: 12%; }
+.releases th:nth-child(3), .releases td:nth-child(3) { width: 30%; }
+.releases th:nth-child(4), .releases td:nth-child(4) { width: 10%; }
 .releases th:nth-child(5), .releases td:nth-child(5) { width: 10%; }
-.releases th:nth-child(6), .releases td:nth-child(6) { width: 9%; white-space: nowrap; }
+.releases th:nth-child(6), .releases td:nth-child(6) { width: 6%; white-space: nowrap; }
 
 @media (max-width: 60rem) {
   .releases th:nth-child(n), .releases td:nth-child(n) { width: auto; }
@@ -319,6 +319,9 @@ button, input, select { font: inherit; }
 
 .releases tbody tr { background: var(--color-paper-2); }
 
+/* Filtered-out rows must disappear even where the table is laid out as blocks. */
+.releases tbody tr[hidden] { display: none; }
+
 .releases tbody tr:last-child td { border-block-end: 0; }
 
 .releases__version {
@@ -326,6 +329,7 @@ button, input, select { font: inherit; }
   font-variant-numeric: tabular-nums slashed-zero;
   font-size: var(--text-md);
   color: var(--color-cool);
+  white-space: nowrap;
 }
 
 .releases__os {
@@ -407,43 +411,58 @@ button, input, select { font: inherit; }
   overflow-wrap: anywhere;
 }
 
-/* ---------- channels ---------- */
+/* ---------- platform filter ---------- */
 
-.channels {
-  display: grid;
-  grid-template-columns: minmax(0, 6fr) minmax(0, 6fr);
-  gap: var(--rule-hair);
-  background: var(--color-rule);
-  border: var(--rule-hair) solid var(--color-rule);
-  border-radius: var(--radius-card);
-  overflow: hidden;
+.platforms {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-md);
 }
 
-.channel {
+/* Without the script the filter does nothing, so it stays out of the way. */
+.platforms[hidden] { display: none; }
+
+.platform {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2xs);
+  min-height: 36px;
+  padding-inline: var(--space-sm);
+  border: var(--rule-hair) solid var(--color-rule-2);
+  border-radius: var(--radius-pill);
   background: var(--color-paper-2);
-  padding: var(--space-lg);
-  display: grid;
-  gap: var(--space-sm);
-  align-content: start;
+  color: var(--color-ink-2);
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  transition: background-color var(--dur-micro) var(--ease-out),
+              border-color var(--dur-micro) var(--ease-out),
+              color var(--dur-micro) var(--ease-out);
 }
 
-.channel h3, .channel p { max-width: none; }
+.platform:hover { background: var(--color-paper-3); border-color: var(--color-muted); color: var(--color-ink); }
 
-.channel p { color: var(--color-muted); font-size: var(--text-sm); }
+.platform[aria-pressed="true"] {
+  background: var(--color-cool-soft);
+  border-color: var(--color-cool);
+  color: var(--color-ink);
+}
 
-.channel__value {
+.platform__count {
   font-family: var(--font-outlier);
   font-variant-numeric: tabular-nums slashed-zero;
-  font-size: var(--text-xl);
-  line-height: 1.2;
-  color: var(--color-cool);
-}
-
-.channel__url {
-  font-family: var(--font-outlier);
   font-size: var(--text-xs);
   color: var(--color-muted);
-  overflow-wrap: anywhere;
+}
+
+.platform[aria-pressed="true"] .platform__count { color: var(--color-cool); }
+
+.platforms__note {
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+  margin-inline-start: var(--space-2xs);
 }
 
 /* ---------- footer ---------- */
@@ -469,26 +488,28 @@ button, input, select { font: inherit; }
   font-size: var(--text-xs);
   color: var(--color-muted);
   margin-top: var(--space-xs);
+  text-align: end;
 }
-
-.colophon { font-size: var(--text-sm); color: var(--color-muted); max-width: 56ch; }
-
-.colophon a { color: var(--color-ink-2); text-decoration-color: var(--color-rule-2); }
-
-.colophon a:hover { color: var(--color-accent); }
 
 /* ---------- responsive ---------- */
 
 @media (max-width: 60rem) {
   html { scroll-behavior: auto; }
 
+  /* The 64px gutter is a desktop measure; on a phone it leaves too little column. */
+  .container { padding-inline: var(--space-lg); }
+
   .hero { padding-block: var(--space-2xl) var(--space-xl); }
 
-  .hero__grid, .step, .footer__inner, .channels { grid-template-columns: minmax(0, 1fr); }
+  .hero__grid, .step, .footer__inner { grid-template-columns: minmax(0, 1fr); }
 
   .hero__grid { gap: var(--space-xl); }
 
   .step { gap: var(--space-sm); }
+
+  .footer__inner { gap: var(--space-md); }
+
+  .stamp { text-align: start; }
 
   .site-nav__links { display: none; }
 

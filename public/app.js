@@ -1,16 +1,24 @@
 // Progressive enhancement: the page ships complete without this script, and this
-// script replaces the seeded markup with whatever site/releases.json currently
-// holds, so a refresh only ever means re-running scripts/fetch-releases.mjs.
+// script replaces the seeded markup with whatever releases.json currently holds,
+// so a refresh only ever means re-running scripts/fetch-releases.mjs.
 
 (() => {
   const LIST_URL = "releases.json";
-  const PLATFORM_LABEL = {
-    "windows-x86_64": "Windows",
-    "linux-x86_64": "Linux",
-    "linux-aarch64": "Linux",
-    "darwin-aarch64": "macOS",
-    "darwin-x86_64": "macOS",
-    "android": "Android",
+
+  // One card per operating system, so an OS with no build is said once, not twice.
+  const GROUPS = [
+    { key: "windows", label: "Windows", arch: "x86_64" },
+    { key: "linux", label: "Linux", arch: "x86_64" },
+    { key: "macos", label: "macOS", arch: "arm64 与 x86_64" },
+    { key: "android", label: "Android", arch: "arm64" },
+  ];
+  const GROUP_OF = {
+    "windows-x86_64": "windows",
+    "linux-x86_64": "linux",
+    "linux-aarch64": "linux",
+    "darwin-aarch64": "macos",
+    "darwin-x86_64": "macos",
+    android: "android",
   };
   const PLATFORM_ARCH = {
     "windows-x86_64": "x86_64",
@@ -18,7 +26,7 @@
     "linux-aarch64": "arm64",
     "darwin-aarch64": "arm64",
     "darwin-x86_64": "x86_64",
-    "android": "arm64",
+    android: "arm64",
   };
   const KIND_LABEL = {
     exe: "setup.exe",
@@ -32,23 +40,8 @@
   };
 
   const assetUrl = (id) => `https://cdn.crabnebula.app/asset/${id}`;
-
-  // One card per operating system, so an OS with no build is said once, not twice.
-  const GROUP_ORDER = ["Windows", "Linux", "macOS", "Android"];
-  const GROUP_OF = {
-    "windows-x86_64": "Windows",
-    "linux-x86_64": "Linux",
-    "linux-aarch64": "Linux",
-    "darwin-aarch64": "macOS",
-    "darwin-x86_64": "macOS",
-    "android": "Android",
-  };
-  const GROUP_ARCH = {
-    Windows: "x86_64",
-    Linux: "x86_64",
-    macOS: "arm64 与 x86_64",
-    Android: "arm64",
-  };
+  const groupMeta = (key) => GROUPS.find((g) => g.key === key) ?? null;
+  const groupOf = (platform) => GROUP_OF[platform] ?? null;
 
   function sizeText(bytes) {
     if (!Number.isFinite(bytes) || bytes <= 0) return "—";
@@ -82,106 +75,6 @@
     return el("span", stable ? "chip" : "chip chip--alpha", stable ? "稳定版" : "预览版");
   }
 
-  function groupOf(platform) {
-    return GROUP_OF[platform] ?? platform;
-  }
-
-  function readingCard(group, withPrimary) {
-    const card = el("div", "reading");
-
-    const head = el("div", "reading__os");
-    head.append(group.os);
-    head.append(el("span", "reading__arch", GROUP_ARCH[group.os] ?? ""));
-
-    card.append(head);
-    card.append(el("div", "reading__value", group.version));
-
-    const when = el("div", "reading__when");
-    when.append(el("span", "", dateText(group.publishedAt)));
-    for (const asset of group.assets) {
-      when.append(el("span", "", sizeText(asset.bytes)));
-      when.append(el("span", "", KIND_LABEL[asset.kind] ?? asset.kind));
-    }
-    card.append(when);
-
-    const actions = el("div", "reading__actions");
-    group.assets.forEach((asset, index) => {
-      // One filled action on the whole page: the first build of the first OS.
-      const filled = withPrimary && index === 0;
-      const link = el("a", filled ? "btn btn--primary" : "btn btn--quiet");
-      link.href = assetUrl(asset.id);
-      link.setAttribute("download", "");
-      link.textContent = index === 0
-        ? `下载 ${group.os} 版`
-        : `${KIND_LABEL[asset.kind] ?? asset.kind} 版本`;
-      actions.append(link);
-    });
-    card.append(actions);
-    return card;
-  }
-
-  // Whatever has no build is said once, in one quiet row, rather than as an
-  // empty panel per platform.
-  function pendingCard(names) {
-    const card = el("div", "reading reading--none");
-    const head = el("div", "reading__os");
-    head.append(names.join(" 与 "));
-    head.append(el("span", "reading__arch", "暂无"));
-    card.append(head);
-    const when = el("div", "reading__when");
-    when.append(el("span", "", "还没有已发布的安装包，发布之后会出现在这里"));
-    card.append(when);
-    return card;
-  }
-
-  function renderReadings(data) {
-    const holder = document.querySelector(".readings");
-    if (!holder) return;
-    const latest = data.latestByPlatform ?? {};
-    const releases = data.releases ?? [];
-
-    const groups = GROUP_ORDER.map((os) => {
-      const platforms = Object.keys(latest).filter((p) => groupOf(p) === os);
-      if (!platforms.length) return { os, version: null, publishedAt: null, assets: [] };
-
-      // The newest stable build for this OS wins over any preview; a preview is
-      // shown only when that OS has nothing stable yet.
-      let best = null;
-      for (const release of releases) {
-        const assets = (release.assets ?? []).filter((a) => groupOf(a.platform) === os);
-        if (!assets.length) continue;
-        const candidate = {
-          version: release.version,
-          publishedAt: release.publishedAt,
-          assets,
-          stable: isStable(release.channel),
-        };
-        if (!best) {
-          best = candidate;
-          continue;
-        }
-        if (candidate.stable !== best.stable) {
-          if (candidate.stable) best = candidate;
-          continue;
-        }
-        if (compareVersion(candidate.version, best.version) > 0) best = candidate;
-      }
-      if (!best) {
-        const picked = latest[platforms[0]];
-        return { os, version: picked.version, publishedAt: null, assets: [] };
-      }
-      return { os, ...best };
-    });
-
-    const ready = groups.filter((g) => g.assets.length > 0);
-    const pending = groups.filter((g) => g.assets.length === 0).map((g) => g.os);
-
-    const cards = ready.map((group, index) => readingCard(group, index === 0));
-    if (pending.length) cards.push(pendingCard(pending));
-
-    holder.replaceChildren(...cards);
-  }
-
   // Positive when a is the newer version, so the caller can take the maximum.
   function compareVersion(a, b) {
     const parse = (v) => String(v).split(/[.\-+]/);
@@ -201,8 +94,95 @@
     return 0;
   }
 
+  /** The newest stable build per OS; a preview is picked only when nothing stable exists. */
+  function latestPerGroup(releases) {
+    const best = new Map();
+    for (const release of releases) {
+      const assets = release.assets ?? [];
+      if (!assets.length) continue;
+      const stable = isStable(release.channel);
+      for (const key of new Set(assets.map((a) => groupOf(a.platform)).filter(Boolean))) {
+        const candidate = {
+          version: release.version,
+          publishedAt: release.publishedAt,
+          assets: assets.filter((a) => groupOf(a.platform) === key),
+          stable,
+        };
+        const current = best.get(key);
+        if (!current) best.set(key, candidate);
+        else if (candidate.stable !== current.stable) {
+          if (candidate.stable) best.set(key, candidate);
+        } else if (compareVersion(candidate.version, current.version) > 0) {
+          best.set(key, candidate);
+        }
+      }
+    }
+    return best;
+  }
+
+  function readingCard(meta, group, withPrimary) {
+    const card = el("div", "reading");
+
+    const head = el("div", "reading__os");
+    head.append(meta.label);
+    head.append(el("span", "reading__arch", meta.arch ?? ""));
+    card.append(head);
+    card.append(el("div", "reading__value", group.version));
+
+    const when = el("div", "reading__when");
+    when.append(el("span", "", dateText(group.publishedAt)));
+    for (const asset of group.assets) {
+      when.append(el("span", "", sizeText(asset.bytes)));
+      when.append(el("span", "", KIND_LABEL[asset.kind] ?? asset.kind));
+    }
+    card.append(when);
+
+    const actions = el("div", "reading__actions");
+    group.assets.forEach((asset, index) => {
+      // One filled action on the whole page: the first build of the first OS.
+      const filled = withPrimary && index === 0;
+      const link = el("a", filled ? "btn btn--primary" : "btn btn--quiet");
+      link.href = assetUrl(asset.id);
+      link.setAttribute("download", "");
+      link.textContent = index === 0 ? `下载 ${meta.label} 版` : `${KIND_LABEL[asset.kind] ?? asset.kind} 版本`;
+      actions.append(link);
+    });
+    card.append(actions);
+    return card;
+  }
+
+  // Whatever has no build is said once, in one quiet row, rather than as an
+  // empty panel per platform.
+  function pendingCard(labels) {
+    const card = el("div", "reading reading--none");
+    const head = el("div", "reading__os");
+    head.append(labels.join(" 与 "));
+    head.append(el("span", "reading__arch", "暂无"));
+    card.append(head);
+    const when = el("div", "reading__when");
+    when.append(el("span", "", "还没有已发布的安装包，发布之后会出现在这里"));
+    card.append(when);
+    return card;
+  }
+
+  function renderReadings(data) {
+    const holder = document.querySelector(".readings");
+    if (!holder) return;
+    const best = latestPerGroup(data.releases ?? []);
+
+    const ready = GROUPS.map((meta) => ({ meta, group: best.get(meta.key) })).filter((x) => x.group);
+    const pending = GROUPS.filter((meta) => !best.has(meta.key)).map((meta) => meta.label);
+
+    const cards = ready.map(({ meta, group }, index) => readingCard(meta, group, index === 0));
+    if (pending.length) cards.push(pendingCard(pending));
+
+    holder.replaceChildren(...cards);
+  }
+
   function releaseRow(release, asset) {
     const tr = el("tr");
+    const group = groupOf(asset.platform);
+    if (group) tr.dataset.platform = group;
 
     const versionCell = el("td");
     versionCell.dataset.th = "版本";
@@ -216,9 +196,10 @@
     tr.append(noteCell);
 
     const fileCell = el("td");
-    fileCell.dataset.th = "平台与文件";
-    const os = PLATFORM_LABEL[asset.platform] ?? asset.platform;
+    fileCell.dataset.th = "文件";
+    const meta = groupMeta(group);
     const arch = PLATFORM_ARCH[asset.platform];
+    const os = meta?.label ?? asset.platform;
     fileCell.append(el("span", "releases__os", arch ? `${os} ${arch}` : os));
     fileCell.append(el("span", "releases__file", asset.filename));
     tr.append(fileCell);
@@ -242,6 +223,68 @@
     return tr;
   }
 
+  const FILTER_ALL = "all";
+
+  function applyFilter(bar, value) {
+    let shown = 0;
+    for (const row of document.querySelectorAll(".releases tbody tr[data-platform]")) {
+      const match = value === FILTER_ALL || row.dataset.platform === value;
+      row.hidden = !match;
+      if (match) shown += 1;
+    }
+    for (const button of bar.querySelectorAll(".platform")) {
+      button.setAttribute("aria-pressed", String(button.dataset.platform === value));
+    }
+    return shown;
+  }
+
+  function renderPlatformBar(data) {
+    const bar = document.querySelector(".platforms");
+    if (!bar) return;
+
+    const rows = [];
+    for (const release of data.releases ?? []) {
+      for (const asset of release.assets ?? []) {
+        const group = groupOf(asset.platform);
+        if (group) rows.push({ release, asset, group });
+      }
+    }
+
+    // Only platforms that actually have a file become a filter, so no button
+    // ever leads to an empty table; the ones without a build are said in words.
+    const buttons = [];
+    const makeButton = (value, label, count) => {
+      const button = el("button", "platform");
+      button.type = "button";
+      button.dataset.platform = value;
+      button.append(label);
+      button.append(el("span", "platform__count", String(count)));
+      return button;
+    };
+
+    buttons.push(makeButton(FILTER_ALL, "全部", rows.length));
+    for (const meta of GROUPS) {
+      const count = rows.filter((r) => r.group === meta.key).length;
+      if (count > 0) buttons.push(makeButton(meta.key, meta.label, count));
+    }
+    bar.replaceChildren(...buttons);
+
+    const silent = GROUPS.filter((meta) => !rows.some((r) => r.group === meta.key)).map((m) => m.label);
+    if (silent.length) {
+      bar.append(el("span", "platforms__note", `${silent.join(" 与 ")} 暂无安装包`));
+    }
+
+    bar.addEventListener("click", (event) => {
+      const button = event.target.closest?.(".platform");
+      if (!button) return;
+      applyFilter(bar, button.dataset.platform);
+    });
+
+    bar.hidden = false;
+    applyFilter(bar, FILTER_ALL);
+    return rows;
+  }
+
   function renderReleases(data) {
     const body = document.querySelector(".releases tbody");
     if (!body) return;
@@ -261,16 +304,6 @@
     stamp.textContent = `${assets} 个安装包，${releases} 次发布，同步于 ${synced}`;
   }
 
-  function renderChannels(data) {
-    const cards = document.querySelectorAll(".channel__value");
-    const latest = data.latest ?? {};
-    const order = Object.keys(latest);
-    cards.forEach((card, index) => {
-      const channel = order[index];
-      if (channel && latest[channel]) card.textContent = latest[channel];
-    });
-  }
-
   async function main() {
     try {
       const res = await fetch(LIST_URL, { cache: "no-store" });
@@ -278,8 +311,8 @@
       const data = await res.json();
       renderReadings(data);
       renderReleases(data);
+      renderPlatformBar(data);
       renderStamp(data);
-      renderChannels(data);
     } catch {
       // The seeded markup stays: the page is complete without this step.
     }
