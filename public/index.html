@@ -4,14 +4,17 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>下载 PointCloud Studio</title>
-<meta name="description" content="PointCloud Studio 的公开下载页：Windows 与 Linux 安装包、文件大小、发布日期与版本记录，按平台筛选，直接来自 CrabNebula CDN。">
+<meta name="description" content="PointCloud Studio 的公开下载页：Windows、Linux x86_64 / ARM64 与 Android 安装包、文件大小、发布日期和版本记录，直接来自 CrabNebula CDN。">
 <meta name="color-scheme" content="dark">
 <meta property="og:title" content="下载 PointCloud Studio">
-<meta property="og:description" content="Windows 与 Linux 安装包、文件大小与发布日期，按平台筛选，由 CrabNebula CDN 直接提供。">
+<meta property="og:description" content="Windows、Linux x86_64 / ARM64 与 Android 安装包、文件大小和发布日期，由 CrabNebula CDN 直接提供。">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="tokens.css">
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="downloads.css">
 <script src="app.js" defer></script>
+<script type="module" src="releases-refresh.js"></script>
+<noscript><style>.platforms { display: none; }</style></noscript>
 </head>
 <body>
 <a class="skip" href="#downloads">跳到下载</a>
@@ -35,42 +38,75 @@
       <p class="hero__note">不需要账号，也不需要登录。文件由 CrabNebula 的 CDN 直接发出，点开即开始下载。</p>
     </div>
 
+    <div data-downloads>
     <!-- begin:readings -->
-    <div class="readings" aria-label="各平台最新版本">
-      <div class="reading">
-        <div class="reading__os">Windows <span class="reading__arch">x86_64</span></div>
-        <div class="reading__value">0.3.26</div>
-        <div class="reading__when"><span>2026-11-04</span><span>6.35 MB</span><span>setup.exe</span></div>
-        <div class="reading__actions">
-          <a class="btn btn--primary" href="https://cdn.crabnebula.app/asset/01M6JG9QND6JW9GNFZ8DGNK6ZF" download>下载 Windows 版</a>
-        </div>
-      </div>
-      <div class="reading">
-        <div class="reading__os">Linux <span class="reading__arch">x86_64</span></div>
-        <div class="reading__value">0.3.27</div>
-        <div class="reading__when"><span>2026-11-05</span><span>2 种格式</span></div>
-        <div class="reading__actions">
-          <details class="picker">
-            <summary class="btn btn--quiet btn--picker">下载 Linux 版<span class="btn__caret"></span></summary>
-            <div class="picker__menu">
-              <a class="picker__item" href="https://cdn.crabnebula.app/asset/01M6MTAGN7XD2X8NRFFYG6XDGV" download>
-                <span class="picker__text"><span class="picker__label">deb</span><span class="picker__hint">Debian、Ubuntu 系</span></span>
-                <span class="picker__size">35.0 MB</span>
-              </a>
-              <a class="picker__item" href="https://cdn.crabnebula.app/asset/01M6MTBK14S7A95H1M5G60BED9" download>
-                <span class="picker__text"><span class="picker__label">AppImage</span><span class="picker__hint">免安装，任意发行版</span></span>
-                <span class="picker__size">106.7 MB</span>
-              </a>
-            </div>
-          </details>
-        </div>
-      </div>
-      <div class="reading reading--none">
-        <div class="reading__os">macOS 与 Android <span class="reading__arch">暂无</span></div>
-        <div class="reading__when"><span>还没有已发布的安装包，发布之后会出现在这里</span></div>
-      </div>
-    </div>
+<div class="readings" aria-label="各平台最新版本">
+<article class="reading" data-download-platform="windows-x86_64" aria-label="Windows 下载">
+<div class="reading__os">Windows <span class="reading__arch">x86_64</span></div>
+<div class="reading__value">0.3.28</div>
+<div class="reading__when"><span>2026-11-11</span><span>6.42 MB · setup.exe</span></div>
+<div class="reading__actions"><a class="btn btn--primary" href="https://cdn.crabnebula.app/asset/01M74KPQ8WBSKXCTGFX84V994Q" download>下载 Windows 版</a></div>
+
+</article>
+<section class="reading reading--linux" aria-label="Linux 下载">
+<div class="reading__os">Linux <span class="reading__arch">按处理器架构选择</span></div>
+<div class="linux-builds"><article class="linux-build" data-download-platform="linux-x86_64" aria-label="Linux x86_64 下载">
+<h3 class="linux-build__name">x86_64</h3>
+<p class="linux-build__hint">Intel / AMD 64 位</p>
+<div class="reading__value">0.3.28</div>
+<div class="reading__when"><span>2026-11-11</span><span>3 种格式</span></div>
+<div class="reading__actions"><details class="picker" name="download-format" data-picker="linux-x86_64">
+  <summary class="btn btn--quiet btn--picker">下载 x86_64 版<span class="btn__caret" aria-hidden="true"></span></summary>
+  <div class="picker__menu"><a class="picker__item" href="https://cdn.crabnebula.app/asset/01M74MG6ZZP6NJXMF2RNP21P6R" download aria-label="下载 Linux x86_64 deb">
+  <span class="picker__text"><span class="picker__label">deb</span><span class="picker__hint">Debian、Ubuntu 系</span></span>
+  <span class="picker__size">35.1 MB</span>
+</a>
+<a class="picker__item" href="https://cdn.crabnebula.app/asset/01M74MTYR57SDXXGZGKX0FGKAX" download aria-label="下载 Linux x86_64 AppImage">
+  <span class="picker__text"><span class="picker__label">AppImage</span><span class="picker__hint">单文件运行，需系统兼容</span></span>
+  <span class="picker__size">106.9 MB</span>
+</a>
+<a class="picker__item" href="https://cdn.crabnebula.app/asset/01M74N2JX3PQCREPMDHNASA271" download aria-label="下载 Linux x86_64 rpm">
+  <span class="picker__text"><span class="picker__label">rpm</span><span class="picker__hint">Fedora、openEuler 系</span></span>
+  <span class="picker__size">35.1 MB</span>
+</a></div>
+</details></div>
+
+</article>
+<article class="linux-build" data-download-platform="linux-aarch64" aria-label="Linux ARM64 下载">
+<h3 class="linux-build__name">ARM64</h3>
+<p class="linux-build__hint">ARM 64 位 · aarch64</p>
+<div class="reading__value">0.3.28</div>
+<div class="reading__when"><span>2026-11-11</span><span>3 种格式</span></div>
+<div class="reading__actions"><details class="picker" name="download-format" data-picker="linux-aarch64">
+  <summary class="btn btn--quiet btn--picker">下载 ARM64 版<span class="btn__caret" aria-hidden="true"></span></summary>
+  <div class="picker__menu"><a class="picker__item" href="https://cdn.crabnebula.app/asset/01M74KQH0EEANPFDX328HERVG6" download aria-label="下载 Linux ARM64 deb">
+  <span class="picker__text"><span class="picker__label">deb</span><span class="picker__hint">Debian、Ubuntu 系</span></span>
+  <span class="picker__size">30.7 MB</span>
+</a>
+<a class="picker__item" href="https://cdn.crabnebula.app/asset/01M74KRYPYC66HKPK1X7BSQNCY" download aria-label="下载 Linux ARM64 AppImage">
+  <span class="picker__text"><span class="picker__label">AppImage</span><span class="picker__hint">单文件运行，需系统兼容</span></span>
+  <span class="picker__size">101.3 MB</span>
+</a>
+<a class="picker__item" href="https://cdn.crabnebula.app/asset/01M74KXWD99E8YKHE78BQZFJ73" download aria-label="下载 Linux ARM64 rpm">
+  <span class="picker__text"><span class="picker__label">rpm</span><span class="picker__hint">Fedora、openEuler 系</span></span>
+  <span class="picker__size">30.7 MB</span>
+</a></div>
+</details></div>
+
+</article></div>
+</section>
+<article class="reading" data-download-platform="android" aria-label="Android 下载">
+<div class="reading__os">Android <span class="reading__arch">APK</span></div>
+<div class="reading__value">0.3.28</div>
+<div class="reading__when"><span>2026-11-11</span><span>160.8 MB · APK</span></div>
+<div class="reading__actions"><a class="btn btn--quiet" href="https://cdn.crabnebula.app/asset/01M74M43ZG7JTTBZ877ET5X1QH" download>下载 Android 版</a></div>
+<p class="reading__note">文件名标记为未签名，安装前请确认已完成 APK 签名。</p>
+</article>
+<div class="reading reading--none"><p class="reading__unavailable">macOS 暂无已发布的安装包</p></div>
+</div>
     <!-- end:readings -->
+    <p class="sync-status" data-sync-status role="status" aria-live="polite"></p>
+    </div>
   </div>
 </header>
 
@@ -87,126 +123,288 @@
   <div class="container">
     <div class="section__head">
       <h2>版本记录</h2>
-      <p>按平台分开列出，选一个平台就只显示这个平台的安装包。每一行是一个可下载的文件，按发布时间倒序；稳定版适合日常使用，预览版先拿到新功能，也更容易出问题。</p>
+      <p>按系统和处理器架构筛选，每一行是一个可下载的文件，按发布时间倒序。Linux 的 x86_64 与 ARM64 分开列出；稳定版适合日常使用，预览版用于体验新功能。</p>
     </div>
 
+    <div data-release-list>
     <!-- begin:releases -->
-    <div class="platforms" role="group" aria-label="按平台筛选安装包" hidden>
-      <button type="button" class="platform" data-platform="all" aria-pressed="true">
-        全部<span class="platform__count">10</span>
-      </button>
-      <button type="button" class="platform" data-platform="windows" aria-pressed="false">
-        Windows<span class="platform__count">8</span>
-      </button>
-      <button type="button" class="platform" data-platform="linux" aria-pressed="false">
-        Linux<span class="platform__count">2</span>
-      </button>
-      <button type="button" class="platform" data-platform="macos" aria-pressed="false">
-        macOS<span class="platform__count">0</span>
-      </button>
-      <button type="button" class="platform" data-platform="android" aria-pressed="false">
-        Android<span class="platform__count">0</span>
-      </button>
-    </div>
-
-    <div class="table-wrap">
-      <table class="releases">
-        <thead>
-          <tr>
-            <th scope="col">版本</th>
-            <th scope="col">更新要点</th>
-            <th scope="col">文件</th>
-            <th scope="col">大小</th>
-            <th scope="col">发布日期</th>
-            <th scope="col"><span class="visually-hidden">下载</span></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr data-platform="linux">
-            <td data-th="版本"><span class="releases__version">0.3.27</span> <span class="chip">稳定版</span></td>
-            <td data-th="更新要点">软件渲染检测与显卡驱动提示</td>
-            <td data-th="文件"><span class="releases__os">Linux x86_64</span><span class="releases__file">PointCloud Studio_0.3.27_amd64.deb</span></td>
-            <td data-th="大小" class="releases__num">35.0 MB</td>
-            <td data-th="发布日期" class="releases__num">2026-11-05</td>
-            <td data-th="下载"><a class="releases__get" href="https://cdn.crabnebula.app/asset/01M6MTAGN7XD2X8NRFFYG6XDGV" download>下载</a></td>
-          </tr>
-          <tr data-platform="linux">
-            <td data-th="版本"><span class="releases__version">0.3.27</span> <span class="chip">稳定版</span></td>
-            <td data-th="更新要点">软件渲染检测与显卡驱动提示</td>
-            <td data-th="文件"><span class="releases__os">Linux x86_64</span><span class="releases__file">PointCloud Studio_0.3.27_amd64.AppImage</span></td>
-            <td data-th="大小" class="releases__num">106.7 MB</td>
-            <td data-th="发布日期" class="releases__num">2026-11-05</td>
-            <td data-th="下载"><a class="releases__get" href="https://cdn.crabnebula.app/asset/01M6MTBK14S7A95H1M5G60BED9" download>下载</a></td>
-          </tr>
-          <tr data-platform="windows">
-            <td data-th="版本"><span class="releases__version">0.3.26</span> <span class="chip">稳定版</span></td>
-            <td data-th="更新要点">多雷达 PCAP 分流与切换显示</td>
-            <td data-th="文件"><span class="releases__os">Windows x86_64</span><span class="releases__file">PointCloud Studio_0.3.26_x64-setup.exe</span></td>
-            <td data-th="大小" class="releases__num">6.35 MB</td>
-            <td data-th="发布日期" class="releases__num">2026-11-04</td>
-            <td data-th="下载"><a class="releases__get" href="https://cdn.crabnebula.app/asset/01M6JG9QND6JW9GNFZ8DGNK6ZF" download>下载</a></td>
-          </tr>
-          <tr data-platform="windows">
-            <td data-th="版本"><span class="releases__version">0.3.25</span> <span class="chip">稳定版</span></td>
-            <td data-th="更新要点">763C 丢包统计与缺口定位修正</td>
-            <td data-th="文件"><span class="releases__os">Windows x86_64</span><span class="releases__file">PointCloud Studio_0.3.25_x64-setup.exe</span></td>
-            <td data-th="大小" class="releases__num">6.31 MB</td>
-            <td data-th="发布日期" class="releases__num">2026-11-02</td>
-            <td data-th="下载"><a class="releases__get" href="https://cdn.crabnebula.app/asset/01M6DQ5EZTAWWKBJJTWXKVYMYJ" download>下载</a></td>
-          </tr>
-          <tr data-platform="windows">
-            <td data-th="版本"><span class="releases__version">0.3.24</span> <span class="chip">稳定版</span></td>
-            <td data-th="更新要点">在线导出当前帧 PCD 与收起窗体单行显示</td>
-            <td data-th="文件"><span class="releases__os">Windows x86_64</span><span class="releases__file">PointCloud Studio_0.3.24_x64-setup.exe</span></td>
-            <td data-th="大小" class="releases__num">6.32 MB</td>
-            <td data-th="发布日期" class="releases__num">2026-10-28</td>
-            <td data-th="下载"><a class="releases__get" href="https://cdn.crabnebula.app/asset/01M611X5WNFQRKH13MNMEMNR5K" download>下载</a></td>
-          </tr>
-          <tr data-platform="windows">
-            <td data-th="版本"><span class="releases__version">0.3.23-alpha.9</span> <span class="chip chip--alpha">预览版</span></td>
-            <td data-th="更新要点">录制文件夹设置与 763C 点云姿态旋转</td>
-            <td data-th="文件"><span class="releases__os">Windows x86_64</span><span class="releases__file">PointCloud Studio_0.3.23-alpha.9_x64-setup.exe</span></td>
-            <td data-th="大小" class="releases__num">6.31 MB</td>
-            <td data-th="发布日期" class="releases__num">2026-10-27</td>
-            <td data-th="下载"><a class="releases__get" href="https://cdn.crabnebula.app/asset/01M5Y879D4GK732WG0H9F7D5ZD" download>下载</a></td>
-          </tr>
-          <tr data-platform="windows">
-            <td data-th="版本"><span class="releases__version">0.3.23-alpha.8</span> <span class="chip chip--alpha">预览版</span></td>
-            <td data-th="更新要点">763C 补偿角接入与点云坐标修正</td>
-            <td data-th="文件"><span class="releases__os">Windows x86_64</span><span class="releases__file">PointCloud Studio_0.3.23-alpha.8_x64-setup.exe</span></td>
-            <td data-th="大小" class="releases__num">6.30 MB</td>
-            <td data-th="发布日期" class="releases__num">2026-10-27</td>
-            <td data-th="下载"><a class="releases__get" href="https://cdn.crabnebula.app/asset/01M5Y4AD74C8F9TRZY4ZX9CT4S" download>下载</a></td>
-          </tr>
-          <tr data-platform="windows">
-            <td data-th="版本"><span class="releases__version">0.3.23-alpha.7</span> <span class="chip chip--alpha">预览版</span></td>
-            <td data-th="更新要点">Android 版本、手机触控与硬件温度</td>
-            <td data-th="文件"><span class="releases__os">Windows x86_64</span><span class="releases__file">PointCloud Studio_0.3.23-alpha.7_x64-setup.exe</span></td>
-            <td data-th="大小" class="releases__num">6.30 MB</td>
-            <td data-th="发布日期" class="releases__num">2026-10-27</td>
-            <td data-th="下载"><a class="releases__get" href="https://cdn.crabnebula.app/asset/01M5Y188CGX1T8K0HTCEX4DERM" download>下载</a></td>
-          </tr>
-          <tr data-platform="windows">
-            <td data-th="版本"><span class="releases__version">0.3.23-alpha.5</span> <span class="chip chip--alpha">预览版</span></td>
-            <td data-th="更新要点">角选按槽位展开与选择结果收起</td>
-            <td data-th="文件"><span class="releases__os">Windows x86_64</span><span class="releases__file">PointCloud Studio_0.3.23-alpha.5_x64-setup.exe</span></td>
-            <td data-th="大小" class="releases__num">6.14 MB</td>
-            <td data-th="发布日期" class="releases__num">2026-10-20</td>
-            <td data-th="下载"><a class="releases__get" href="https://cdn.crabnebula.app/asset/01M5CES0MW7EHYRR1MR4V1NQCK" download>下载</a></td>
-          </tr>
-          <tr data-platform="windows">
-            <td data-th="版本"><span class="releases__version">0.3.23-alpha.4</span> <span class="chip chip--alpha">预览版</span></td>
-            <td data-th="更新要点">性能监控、渲染后端切换与 UDP 诊断</td>
-            <td data-th="文件"><span class="releases__os">Windows x86_64</span><span class="releases__file">PointCloud Studio_0.3.23-alpha.4_x64-setup.exe</span></td>
-            <td data-th="大小" class="releases__num">6.15 MB</td>
-            <td data-th="发布日期" class="releases__num">2026-10-19</td>
-            <td data-th="下载"><a class="releases__get" href="https://cdn.crabnebula.app/asset/01M59YRREYM7MPN7Z0ZEZGAJVH" download>下载</a></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <p class="table-hint">窄屏下每行改为竖排，不横向滚动。</p>
+<div class="platforms" role="group" aria-label="按平台和架构筛选安装包">
+<button type="button" class="platform" data-platform="all" aria-pressed="true">全部<span class="platform__count">33</span></button>
+<button type="button" class="platform" data-platform="windows-x86_64" aria-pressed="false">Windows<span class="platform__count">24</span></button>
+<button type="button" class="platform" data-platform="linux-x86_64" aria-pressed="false">Linux x86_64<span class="platform__count">5</span></button>
+<button type="button" class="platform" data-platform="linux-aarch64" aria-pressed="false">Linux ARM64<span class="platform__count">3</span></button>
+<button type="button" class="platform" data-platform="android" aria-pressed="false">Android<span class="platform__count">1</span></button>
+</div>
+<div class="table-wrap"><table class="releases">
+<thead><tr><th scope="col">版本</th><th scope="col">更新要点</th><th scope="col">文件</th><th scope="col">大小</th><th scope="col">发布日期</th><th scope="col"><span class="visually-hidden">下载</span></th></tr></thead>
+<tbody><tr data-platform="windows-x86_64">
+<td data-th="版本"><span class="releases__version">0.3.28</span> <span class="chip">稳定版</span></td>
+<td data-th="更新要点">工具窗独立显示与界面精简</td>
+<td data-th="文件"><span class="releases__os">Windows x86_64</span><span class="releases__file">PointCloud Studio_0.3.28_x64-setup.exe</span></td>
+<td data-th="大小" class="releases__num">6.42 MB</td>
+<td data-th="发布日期" class="releases__num">2026-11-11</td>
+<td data-th="下载"><a class="releases__get" href="https://cdn.crabnebula.app/asset/01M74KPQ8WBSKXCTGFX84V994Q" download aria-label="下载 PointCloud Studio_0.3.28_x64-setup.exe">下载</a></td>
+</tr>
+<tr data-platform="linux-aarch64">
+<td data-th="版本"><span class="releases__version">0.3.28</span> <span class="chip">稳定版</span></td>
+<td data-th="更新要点">工具窗独立显示与界面精简</td>
+<td data-th="文件"><span class="releases__os">Linux ARM64</span><span class="releases__file">PointCloud Studio_0.3.28_arm64.deb</span></td>
+<td data-th="大小" class="releases__num">30.7 MB</td>
+<td data-th="发布日期" class="releases__num">2026-11-11</td>
+<td data-th="下载"><a class="releases__get" href="https://cdn.crabnebula.app/asset/01M74KQH0EEANPFDX328HERVG6" download aria-label="下载 PointCloud Studio_0.3.28_arm64.deb">下载</a></td>
+</tr>
+<tr data-platform="linux-aarch64">
+<td data-th="版本"><span class="releases__version">0.3.28</span> <span class="chip">稳定版</span></td>
+<td data-th="更新要点">工具窗独立显示与界面精简</td>
+<td data-th="文件"><span class="releases__os">Linux ARM64</span><span class="releases__file">PointCloud Studio_0.3.28_aarch64.AppImage</span></td>
+<td data-th="大小" class="releases__num">101.3 MB</td>
+<td data-th="发布日期" class="releases__num">2026-11-11</td>
+<td data-th="下载"><a class="releases__get" href="https://cdn.crabnebula.app/asset/01M74KRYPYC66HKPK1X7BSQNCY" download aria-label="下载 PointCloud Studio_0.3.28_aarch64.AppImage">下载</a></td>
+</tr>
+<tr data-platform="linux-aarch64">
+<td data-th="版本"><span class="releases__version">0.3.28</span> <span class="chip">稳定版</span></td>
+<td data-th="更新要点">工具窗独立显示与界面精简</td>
+<td data-th="文件"><span class="releases__os">Linux ARM64</span><span class="releases__file">PointCloud Studio-0.3.28-1.aarch64.rpm</span></td>
+<td data-th="大小" class="releases__num">30.7 MB</td>
+<td data-th="发布日期" class="releases__num">2026-11-11</td>
+<td data-th="下载"><a class="releases__get" href="https://cdn.crabnebula.app/asset/01M74KXWD99E8YKHE78BQZFJ73" download aria-label="下载 PointCloud Studio-0.3.28-1.aarch64.rpm">下载</a></td>
+</tr>
+<tr data-platform="android">
+<td data-th="版本"><span class="releases__version">0.3.28</span> <span class="chip">稳定版</span></td>
+<td data-th="更新要点">工具窗独立显示与界面精简</td>
+<td data-th="文件"><span class="releases__os">Android APK</span><span class="releases__file">pointcloud-studio-0.3.28-universal-release-unsigned.apk</span></td>
+<td data-th="大小" class="releases__num">160.8 MB</td>
+<td data-th="发布日期" class="releases__num">2026-11-11</td>
+<td data-th="下载"><a class="releases__get" href="https://cdn.crabnebula.app/asset/01M74M43ZG7JTTBZ877ET5X1QH" download aria-label="下载 pointcloud-studio-0.3.28-universal-release-unsigned.apk">下载</a></td>
+</tr>
+<tr data-platform="linux-x86_64">
+<td data-th="版本"><span class="releases__version">0.3.28</span> <span class="chip">稳定版</span></td>
+<td data-th="更新要点">工具窗独立显示与界面精简</td>
+<td data-th="文件"><span class="releases__os">Linux x86_64</span><span class="releases__file">PointCloud Studio_0.3.28_amd64.deb</span></td>
+<td data-th="大小" class="releases__num">35.1 MB</td>
+<td data-th="发布日期" class="releases__num">2026-11-11</td>
+<td data-th="下载"><a class="releases__get" href="https://cdn.crabnebula.app/asset/01M74MG6ZZP6NJXMF2RNP21P6R" download aria-label="下载 PointCloud Studio_0.3.28_amd64.deb">下载</a></td>
+</tr>
+<tr data-platform="linux-x86_64">
+<td data-th="版本"><span class="releases__version">0.3.28</span> <span class="chip">稳定版</span></td>
+<td data-th="更新要点">工具窗独立显示与界面精简</td>
+<td data-th="文件"><span class="releases__os">Linux x86_64</span><span class="releases__file">PointCloud Studio_0.3.28_amd64.AppImage</span></td>
+<td data-th="大小" class="releases__num">106.9 MB</td>
+<td data-th="发布日期" class="releases__num">2026-11-11</td>
+<td data-th="下载"><a class="releases__get" href="https://cdn.crabnebula.app/asset/01M74MTYR57SDXXGZGKX0FGKAX" download aria-label="下载 PointCloud Studio_0.3.28_amd64.AppImage">下载</a></td>
+</tr>
+<tr data-platform="linux-x86_64">
+<td data-th="版本"><span class="releases__version">0.3.28</span> <span class="chip">稳定版</span></td>
+<td data-th="更新要点">工具窗独立显示与界面精简</td>
+<td data-th="文件"><span class="releases__os">Linux x86_64</span><span class="releases__file">PointCloud Studio-0.3.28-1.x86_64.rpm</span></td>
+<td data-th="大小" class="releases__num">35.1 MB</td>
+<td data-th="发布日期" class="releases__num">2026-11-11</td>
+<td data-th="下载"><a class="releases__get" href="https://cdn.crabnebula.app/asset/01M74N2JX3PQCREPMDHNASA271" download aria-label="下载 PointCloud Studio-0.3.28-1.x86_64.rpm">下载</a></td>
+</tr>
+<tr data-platform="linux-x86_64">
+<td data-th="版本"><span class="releases__version">0.3.27</span> <span class="chip">稳定版</span></td>
+<td data-th="更新要点">软件渲染检测与显卡驱动提示</td>
+<td data-th="文件"><span class="releases__os">Linux x86_64</span><span class="releases__file">PointCloud Studio_0.3.27_amd64.deb</span></td>
+<td data-th="大小" class="releases__num">35.0 MB</td>
+<td data-th="发布日期" class="releases__num">2026-11-05</td>
+<td data-th="下载"><a class="releases__get" href="https://cdn.crabnebula.app/asset/01M6MTAGN7XD2X8NRFFYG6XDGV" download aria-label="下载 PointCloud Studio_0.3.27_amd64.deb">下载</a></td>
+</tr>
+<tr data-platform="linux-x86_64">
+<td data-th="版本"><span class="releases__version">0.3.27</span> <span class="chip">稳定版</span></td>
+<td data-th="更新要点">软件渲染检测与显卡驱动提示</td>
+<td data-th="文件"><span class="releases__os">Linux x86_64</span><span class="releases__file">PointCloud Studio_0.3.27_amd64.AppImage</span></td>
+<td data-th="大小" class="releases__num">106.7 MB</td>
+<td data-th="发布日期" class="releases__num">2026-11-05</td>
+<td data-th="下载"><a class="releases__get" href="https://cdn.crabnebula.app/asset/01M6MTBK14S7A95H1M5G60BED9" download aria-label="下载 PointCloud Studio_0.3.27_amd64.AppImage">下载</a></td>
+</tr>
+<tr data-platform="windows-x86_64">
+<td data-th="版本"><span class="releases__version">0.3.26</span> <span class="chip">稳定版</span></td>
+<td data-th="更新要点">多雷达 PCAP 分流与切换显示</td>
+<td data-th="文件"><span class="releases__os">Windows x86_64</span><span class="releases__file">PointCloud Studio_0.3.26_x64-setup.exe</span></td>
+<td data-th="大小" class="releases__num">6.35 MB</td>
+<td data-th="发布日期" class="releases__num">2026-11-04</td>
+<td data-th="下载"><a class="releases__get" href="https://cdn.crabnebula.app/asset/01M6JG9QND6JW9GNFZ8DGNK6ZF" download aria-label="下载 PointCloud Studio_0.3.26_x64-setup.exe">下载</a></td>
+</tr>
+<tr data-platform="windows-x86_64">
+<td data-th="版本"><span class="releases__version">0.3.25</span> <span class="chip">稳定版</span></td>
+<td data-th="更新要点">763C 丢包统计与缺口定位修正</td>
+<td data-th="文件"><span class="releases__os">Windows x86_64</span><span class="releases__file">PointCloud Studio_0.3.25_x64-setup.exe</span></td>
+<td data-th="大小" class="releases__num">6.31 MB</td>
+<td data-th="发布日期" class="releases__num">2026-11-02</td>
+<td data-th="下载"><a class="releases__get" href="https://cdn.crabnebula.app/asset/01M6DQ5EZTAWWKBJJTWXKVYMYJ" download aria-label="下载 PointCloud Studio_0.3.25_x64-setup.exe">下载</a></td>
+</tr>
+<tr data-platform="windows-x86_64">
+<td data-th="版本"><span class="releases__version">0.3.24</span> <span class="chip">稳定版</span></td>
+<td data-th="更新要点">在线导出当前帧 PCD 与收起窗体单行显示</td>
+<td data-th="文件"><span class="releases__os">Windows x86_64</span><span class="releases__file">PointCloud Studio_0.3.24_x64-setup.exe</span></td>
+<td data-th="大小" class="releases__num">6.32 MB</td>
+<td data-th="发布日期" class="releases__num">2026-10-28</td>
+<td data-th="下载"><a class="releases__get" href="https://cdn.crabnebula.app/asset/01M611X5WNFQRKH13MNMEMNR5K" download aria-label="下载 PointCloud Studio_0.3.24_x64-setup.exe">下载</a></td>
+</tr>
+<tr data-platform="windows-x86_64">
+<td data-th="版本"><span class="releases__version">0.3.23-alpha.9</span> <span class="chip chip--alpha">预览版</span></td>
+<td data-th="更新要点">录制文件夹设置与 763C 点云姿态旋转</td>
+<td data-th="文件"><span class="releases__os">Windows x86_64</span><span class="releases__file">PointCloud Studio_0.3.23-alpha.9_x64-setup.exe</span></td>
+<td data-th="大小" class="releases__num">6.31 MB</td>
+<td data-th="发布日期" class="releases__num">2026-10-27</td>
+<td data-th="下载"><a class="releases__get" href="https://cdn.crabnebula.app/asset/01M5Y879D4GK732WG0H9F7D5ZD" download aria-label="下载 PointCloud Studio_0.3.23-alpha.9_x64-setup.exe">下载</a></td>
+</tr>
+<tr data-platform="windows-x86_64">
+<td data-th="版本"><span class="releases__version">0.3.23-alpha.8</span> <span class="chip chip--alpha">预览版</span></td>
+<td data-th="更新要点">763C 补偿角接入与点云坐标修正</td>
+<td data-th="文件"><span class="releases__os">Windows x86_64</span><span class="releases__file">PointCloud Studio_0.3.23-alpha.8_x64-setup.exe</span></td>
+<td data-th="大小" class="releases__num">6.30 MB</td>
+<td data-th="发布日期" class="releases__num">2026-10-27</td>
+<td data-th="下载"><a class="releases__get" href="https://cdn.crabnebula.app/asset/01M5Y4AD74C8F9TRZY4ZX9CT4S" download aria-label="下载 PointCloud Studio_0.3.23-alpha.8_x64-setup.exe">下载</a></td>
+</tr>
+<tr data-platform="windows-x86_64">
+<td data-th="版本"><span class="releases__version">0.3.23-alpha.7</span> <span class="chip chip--alpha">预览版</span></td>
+<td data-th="更新要点">Android 版本、手机触控与硬件温度</td>
+<td data-th="文件"><span class="releases__os">Windows x86_64</span><span class="releases__file">PointCloud Studio_0.3.23-alpha.7_x64-setup.exe</span></td>
+<td data-th="大小" class="releases__num">6.30 MB</td>
+<td data-th="发布日期" class="releases__num">2026-10-27</td>
+<td data-th="下载"><a class="releases__get" href="https://cdn.crabnebula.app/asset/01M5Y188CGX1T8K0HTCEX4DERM" download aria-label="下载 PointCloud Studio_0.3.23-alpha.7_x64-setup.exe">下载</a></td>
+</tr>
+<tr data-platform="windows-x86_64">
+<td data-th="版本"><span class="releases__version">0.3.23-alpha.5</span> <span class="chip chip--alpha">预览版</span></td>
+<td data-th="更新要点">角选按槽位展开与选择结果收起</td>
+<td data-th="文件"><span class="releases__os">Windows x86_64</span><span class="releases__file">PointCloud Studio_0.3.23-alpha.5_x64-setup.exe</span></td>
+<td data-th="大小" class="releases__num">6.14 MB</td>
+<td data-th="发布日期" class="releases__num">2026-10-20</td>
+<td data-th="下载"><a class="releases__get" href="https://cdn.crabnebula.app/asset/01M5CES0MW7EHYRR1MR4V1NQCK" download aria-label="下载 PointCloud Studio_0.3.23-alpha.5_x64-setup.exe">下载</a></td>
+</tr>
+<tr data-platform="windows-x86_64">
+<td data-th="版本"><span class="releases__version">0.3.23-alpha.4</span> <span class="chip chip--alpha">预览版</span></td>
+<td data-th="更新要点">性能监控、渲染后端切换与 UDP 诊断</td>
+<td data-th="文件"><span class="releases__os">Windows x86_64</span><span class="releases__file">PointCloud Studio_0.3.23-alpha.4_x64-setup.exe</span></td>
+<td data-th="大小" class="releases__num">6.15 MB</td>
+<td data-th="发布日期" class="releases__num">2026-10-19</td>
+<td data-th="下载"><a class="releases__get" href="https://cdn.crabnebula.app/asset/01M59YRREYM7MPN7Z0ZEZGAJVH" download aria-label="下载 PointCloud Studio_0.3.23-alpha.4_x64-setup.exe">下载</a></td>
+</tr>
+<tr data-platform="windows-x86_64">
+<td data-th="版本"><span class="releases__version">0.3.22</span> <span class="chip">稳定版</span></td>
+<td data-th="更新要点">关闭视场的点云保持与网络参数限制</td>
+<td data-th="文件"><span class="releases__os">Windows x86_64</span><span class="releases__file">PointCloud Studio_0.3.22_x64-setup.exe</span></td>
+<td data-th="大小" class="releases__num">5.70 MB</td>
+<td data-th="发布日期" class="releases__num">2026-10-12</td>
+<td data-th="下载"><a class="releases__get" href="https://cdn.crabnebula.app/asset/01M4QKXJKRC6YZ4XW6DF4FX2AR" download aria-label="下载 PointCloud Studio_0.3.22_x64-setup.exe">下载</a></td>
+</tr>
+<tr data-platform="windows-x86_64">
+<td data-th="版本"><span class="releases__version">0.3.21</span> <span class="chip">稳定版</span></td>
+<td data-th="更新要点">点云姿势旋转、丢包显示</td>
+<td data-th="文件"><span class="releases__os">Windows x86_64</span><span class="releases__file">PointCloud Studio_0.3.21_x64-setup.exe</span></td>
+<td data-th="大小" class="releases__num">5.69 MB</td>
+<td data-th="发布日期" class="releases__num">2026-10-12</td>
+<td data-th="下载"><a class="releases__get" href="https://cdn.crabnebula.app/asset/01M4QFNV0CSP7A9Q6GYTDFZ2HP" download aria-label="下载 PointCloud Studio_0.3.21_x64-setup.exe">下载</a></td>
+</tr>
+<tr data-platform="windows-x86_64">
+<td data-th="版本"><span class="releases__version">0.3.20</span> <span class="chip">稳定版</span></td>
+<td data-th="更新要点">更新通道、下载进度与下拉交互修复</td>
+<td data-th="文件"><span class="releases__os">Windows x86_64</span><span class="releases__file">PointCloud Studio_0.3.20_x64-setup.exe</span></td>
+<td data-th="大小" class="releases__num">5.67 MB</td>
+<td data-th="发布日期" class="releases__num">2026-10-10</td>
+<td data-th="下载"><a class="releases__get" href="https://cdn.crabnebula.app/asset/01M4HSSN01VVDB4S52WCC3WW7B" download aria-label="下载 PointCloud Studio_0.3.20_x64-setup.exe">下载</a></td>
+</tr>
+<tr data-platform="windows-x86_64">
+<td data-th="版本"><span class="releases__version">0.3.20-alpha.0</span> <span class="chip chip--alpha">预览版</span></td>
+<td data-th="更新要点">更新通道、下载进度与下拉交互修复</td>
+<td data-th="文件"><span class="releases__os">Windows x86_64</span><span class="releases__file">PointCloud Studio_0.3.20-alpha.0_x64-setup.exe</span></td>
+<td data-th="大小" class="releases__num">5.67 MB</td>
+<td data-th="发布日期" class="releases__num">2026-10-10</td>
+<td data-th="下载"><a class="releases__get" href="https://cdn.crabnebula.app/asset/01M4HQGYMTJV0P0S10QFNZ0K8T" download aria-label="下载 PointCloud Studio_0.3.20-alpha.0_x64-setup.exe">下载</a></td>
+</tr>
+<tr data-platform="windows-x86_64">
+<td data-th="版本"><span class="releases__version">0.3.19</span> <span class="chip">稳定版</span></td>
+<td data-th="更新要点">点表时间戳与录制、回放优化</td>
+<td data-th="文件"><span class="releases__os">Windows x86_64</span><span class="releases__file">PointCloud Studio_0.3.19_x64-setup.exe</span></td>
+<td data-th="大小" class="releases__num">5.67 MB</td>
+<td data-th="发布日期" class="releases__num">2026-10-09</td>
+<td data-th="下载"><a class="releases__get" href="https://cdn.crabnebula.app/asset/01M4F7BT4HK8MDP19VTDC1CCQP" download aria-label="下载 PointCloud Studio_0.3.19_x64-setup.exe">下载</a></td>
+</tr>
+<tr data-platform="windows-x86_64">
+<td data-th="版本"><span class="releases__version">0.3.19</span> <span class="chip chip--alpha">预览版</span></td>
+<td data-th="更新要点">点表时间戳与录制、回放优化</td>
+<td data-th="文件"><span class="releases__os">Windows x86_64</span><span class="releases__file">PointCloud Studio_0.3.19_x64-setup.exe</span></td>
+<td data-th="大小" class="releases__num">5.67 MB</td>
+<td data-th="发布日期" class="releases__num">2026-10-09</td>
+<td data-th="下载"><a class="releases__get" href="https://cdn.crabnebula.app/asset/01M4F7933Z89PQ01T6QQB2Y80T" download aria-label="下载 PointCloud Studio_0.3.19_x64-setup.exe">下载</a></td>
+</tr>
+<tr data-platform="windows-x86_64">
+<td data-th="版本"><span class="releases__version">0.3.18</span> <span class="chip">稳定版</span></td>
+<td data-th="更新要点">丢包检测 HTML 报告导出</td>
+<td data-th="文件"><span class="releases__os">Windows x86_64</span><span class="releases__file">PointCloud Studio_0.3.18_x64-setup.exe</span></td>
+<td data-th="大小" class="releases__num">5.55 MB</td>
+<td data-th="发布日期" class="releases__num">2026-09-28</td>
+<td data-th="下载"><a class="releases__get" href="https://cdn.crabnebula.app/asset/01M3KV5XDAH4R6R9R9ACNG5ZZN" download aria-label="下载 PointCloud Studio_0.3.18_x64-setup.exe">下载</a></td>
+</tr>
+<tr data-platform="windows-x86_64">
+<td data-th="版本"><span class="releases__version">0.3.17</span> <span class="chip">稳定版</span></td>
+<td data-th="更新要点">PTP 校时查询与设置接入</td>
+<td data-th="文件"><span class="releases__os">Windows x86_64</span><span class="releases__file">PointCloud Studio_0.3.17_x64-setup.exe</span></td>
+<td data-th="大小" class="releases__num">5.51 MB</td>
+<td data-th="发布日期" class="releases__num">2026-09-24</td>
+<td data-th="下载"><a class="releases__get" href="https://cdn.crabnebula.app/asset/01M39APA0QQ286GKGR04CZTY6V" download aria-label="下载 PointCloud Studio_0.3.17_x64-setup.exe">下载</a></td>
+</tr>
+<tr data-platform="windows-x86_64">
+<td data-th="版本"><span class="releases__version">0.3.16</span> <span class="chip">稳定版</span></td>
+<td data-th="更新要点">760B 网络参数主从模式（PHY）支持</td>
+<td data-th="文件"><span class="releases__os">Windows x86_64</span><span class="releases__file">PointCloud Studio_0.3.16_x64-setup.exe</span></td>
+<td data-th="大小" class="releases__num">5.50 MB</td>
+<td data-th="发布日期" class="releases__num">2026-09-22</td>
+<td data-th="下载"><a class="releases__get" href="https://cdn.crabnebula.app/asset/01M345D7WJ7G1ZP51EY92WR0BB" download aria-label="下载 PointCloud Studio_0.3.16_x64-setup.exe">下载</a></td>
+</tr>
+<tr data-platform="windows-x86_64">
+<td data-th="版本"><span class="releases__version">0.3.15</span> <span class="chip">稳定版</span></td>
+<td data-th="更新要点">正交视图切换、网格浮点间距与 763C 解析修复</td>
+<td data-th="文件"><span class="releases__os">Windows x86_64</span><span class="releases__file">PointCloud Studio_0.3.15_x64-setup.exe</span></td>
+<td data-th="大小" class="releases__num">5.50 MB</td>
+<td data-th="发布日期" class="releases__num">2026-09-18</td>
+<td data-th="下载"><a class="releases__get" href="https://cdn.crabnebula.app/asset/01M2SHKPRH6VAZ4QCJ99XZP6SF" download aria-label="下载 PointCloud Studio_0.3.15_x64-setup.exe">下载</a></td>
+</tr>
+<tr data-platform="windows-x86_64">
+<td data-th="版本"><span class="releases__version">0.3.14</span> <span class="chip">稳定版</span></td>
+<td data-th="更新要点">WGPU 渲染调度与动态点云闪烁修复</td>
+<td data-th="文件"><span class="releases__os">Windows x86_64</span><span class="releases__file">PointCloud Studio_0.3.14_x64-setup.exe</span></td>
+<td data-th="大小" class="releases__num">5.49 MB</td>
+<td data-th="发布日期" class="releases__num">2026-09-17</td>
+<td data-th="下载"><a class="releases__get" href="https://cdn.crabnebula.app/asset/01M2PWTTW4CV0VJMR1DD6TPSE7" download aria-label="下载 PointCloud Studio_0.3.14_x64-setup.exe">下载</a></td>
+</tr>
+<tr data-platform="windows-x86_64">
+<td data-th="版本"><span class="releases__version">0.3.13</span> <span class="chip">稳定版</span></td>
+<td data-th="更新要点">队列丢包日志聚合与诊断改进</td>
+<td data-th="文件"><span class="releases__os">Windows x86_64</span><span class="releases__file">PointCloud Studio_0.3.13_x64-setup.exe</span></td>
+<td data-th="大小" class="releases__num">5.49 MB</td>
+<td data-th="发布日期" class="releases__num">2026-09-14</td>
+<td data-th="下载"><a class="releases__get" href="https://cdn.crabnebula.app/asset/01M2F6FTQMH450E4DCGXPSCFS9" download aria-label="下载 PointCloud Studio_0.3.13_x64-setup.exe">下载</a></td>
+</tr>
+<tr data-platform="windows-x86_64">
+<td data-th="版本"><span class="releases__version">0.3.12</span> <span class="chip">稳定版</span></td>
+<td data-th="更新要点">点云角度、线号映射与通道显示修复</td>
+<td data-th="文件"><span class="releases__os">Windows x86_64</span><span class="releases__file">PointCloud Studio_0.3.12_x64-setup.exe</span></td>
+<td data-th="大小" class="releases__num">5.49 MB</td>
+<td data-th="发布日期" class="releases__num">2026-09-09</td>
+<td data-th="下载"><a class="releases__get" href="https://cdn.crabnebula.app/asset/01M21ZRCCFJKWPJH31HZGWTHMG" download aria-label="下载 PointCloud Studio_0.3.12_x64-setup.exe">下载</a></td>
+</tr>
+<tr data-platform="windows-x86_64">
+<td data-th="版本"><span class="releases__version">0.3.11</span> <span class="chip">稳定版</span></td>
+<td data-th="更新要点">763C 垂直角度标定优化</td>
+<td data-th="文件"><span class="releases__os">Windows x86_64</span><span class="releases__file">PointCloud Studio_0.3.11_x64-setup.exe</span></td>
+<td data-th="大小" class="releases__num">5.48 MB</td>
+<td data-th="发布日期" class="releases__num">2026-09-03</td>
+<td data-th="下载"><a class="releases__get" href="https://cdn.crabnebula.app/asset/01M1JXA2P9EXPQGDRV7SJVM60E" download aria-label="下载 PointCloud Studio_0.3.11_x64-setup.exe">下载</a></td>
+</tr>
+<tr data-platform="windows-x86_64">
+<td data-th="版本"><span class="releases__version">0.3.9</span> <span class="chip">稳定版</span></td>
+<td data-th="更新要点">763C 近距水平补点与相位修复</td>
+<td data-th="文件"><span class="releases__os">Windows x86_64</span><span class="releases__file">PointCloud Studio_0.3.9_x64-setup.exe</span></td>
+<td data-th="大小" class="releases__num">5.48 MB</td>
+<td data-th="发布日期" class="releases__num">2026-08-11</td>
+<td data-th="下载"><a class="releases__get" href="https://cdn.crabnebula.app/asset/01KZQCKFAAETTDW0CJ110RK6HW" download aria-label="下载 PointCloud Studio_0.3.9_x64-setup.exe">下载</a></td>
+</tr></tbody>
+</table></div>
+<p class="table-hint" role="status" aria-live="polite" data-filter-status>共 33 个安装包；窄屏下按文件竖排。</p>
     <!-- end:releases -->
+    </div>
   </div>
 </section>
 
@@ -214,7 +412,7 @@
   <div class="container">
     <div class="section__head">
       <h2>安装</h2>
-      <p>Windows 与 Linux 各自一步到位。安装包没有做代码签名，第一次运行时系统会拦一下，放行方法写在下面。</p>
+      <p>先选系统，再确认 Linux 的处理器架构。Android 使用 APK 安装；下载前请留意安装包的签名状态。</p>
     </div>
 
     <div class="step">
@@ -226,18 +424,40 @@
     </div>
 
     <div class="step">
+      <h3>Linux，选择架构</h3>
+      <div>
+        <p>在终端运行 <span class="mono">uname -m</span>：结果为 <span class="mono">x86_64</span> 时选 x86_64（文件名也可能写 amd64），结果为 <span class="mono">aarch64</span> 或 <span class="mono">arm64</span> 时选 ARM64。两种架构的安装包不能混用。</p>
+      </div>
+    </div>
+
+    <div class="step">
       <h3>Linux，deb</h3>
       <div>
-        <p>适用于 Ubuntu、Debian 及其衍生发行版，会自动装好系统依赖。</p>
-        <span class="command mono">sudo apt install ./PointCloud\ Studio_0.3.27_amd64.deb</span>
+        <p>适用于 Ubuntu、Debian 及其衍生发行版。进入下载目录，将下方文件名替换为实际下载的 deb 文件名；包管理器会安装所需的系统依赖。</p>
+        <code class="command mono">sudo apt install "./PointCloud Studio_&lt;版本&gt;_&lt;amd64或arm64&gt;.deb"</code>
       </div>
     </div>
 
     <div class="step">
       <h3>Linux，AppImage</h3>
       <div>
-        <p>不装进系统，一个文件带着走，发行版不限。下载后先补上可执行权限。</p>
-        <span class="command mono">chmod +x PointCloud\ Studio_0.3.27_amd64.AppImage<br>./PointCloud\ Studio_0.3.27_amd64.AppImage</span>
+        <p>单文件运行，仍需系统与架构兼容。将文件名替换为实际下载的 AppImage 文件名，再赋予可执行权限并启动。</p>
+        <code class="command mono">chmod +x "./PointCloud Studio_&lt;版本&gt;_&lt;架构&gt;.AppImage"<br>"./PointCloud Studio_&lt;版本&gt;_&lt;架构&gt;.AppImage"</code>
+      </div>
+    </div>
+
+    <div class="step">
+      <h3>Linux，rpm</h3>
+      <div>
+        <p>适用于 Fedora、openEuler 等使用 RPM 的发行版。使用系统包管理器打开 rpm 文件，或在终端执行安装；同样需要选择与系统匹配的架构。</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <h3>Android</h3>
+      <div>
+        <p>在手机上下载 APK 后打开。系统询问安装来源时，为本次使用的浏览器或文件管理器允许「安装未知应用」，再按提示安装。</p>
+        <p>APK 必须经过签名。文件名带 <span class="mono">unsigned</span> 的安装包需要先由发布者完成签名；允许安装来源不会解决未签名或签名不一致的问题。</p>
       </div>
     </div>
 
@@ -253,7 +473,11 @@
 <footer class="site-footer">
   <div class="container footer__inner">
     <div class="footer__mast">PointCloud Studio</div>
-    <div class="stamp mono">10 个安装包，9 次发布，同步于 2026-11-09</div>
+    <div data-stamp>
+    <!-- begin:stamp -->
+<div class="stamp mono">33 个安装包，25 次发布，同步于 2026-11-11</div>
+    <!-- end:stamp -->
+    </div>
   </div>
 </footer>
 </body>

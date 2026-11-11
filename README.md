@@ -7,10 +7,10 @@
 
 ## 页面里有什么
 
-- **首屏**：Windows、Linux 各自的最新版本，版本号、发布日期、文件大小与下载入口；只有一个安装包的系统直接给一个下载按钮，像 Linux 这样同时有 deb 与 AppImage 的，「下载 Linux 版」是个下拉栏，点开选 `.deb` 还是 `AppImage`（每项标注适用发行版与文件大小）；没有安装包的系统单独说一句「还没有已发布的安装包」，而不是留一个点不动的按钮。
+- **下载区**：Windows、Linux、Android 的最新版本、发布日期、文件大小与下载入口。Linux 分 x86_64 和 ARM64 两栏，各自选择最新稳定版、各自提供 deb / AppImage / rpm 格式；某个架构更新较慢时仍保留它自己的最新版本。Android 提供 APK；没有安装包的平台如实显示暂无。
 - **界面截图**：`public/assets/live-main.png`，取自软件真实运行画面。
-- **版本记录**：顶部按平台筛选（全部 / Windows / Linux，只有真有安装包的平台才出按钮），选一个平台就只显示这个平台的安装包；下面是按发布时间倒序的文件行（版本、更新要点、文件、大小、发布日期、下载）。
-- **安装**：Windows 的 SmartScreen 提示怎么放行，Linux 的 deb / AppImage 两种装法。
+- **版本记录**：全部 / Windows / Linux x86_64 / Linux ARM64 / Android，只有实际有安装包的平台才出现筛选按钮；文件按发布时间倒序列出，显示版本、更新要点、文件名、大小、发布日期和下载链接。
+- **安装**：Windows 的 SmartScreen 提示、Linux 的架构识别和 deb / AppImage / rpm 安装、Android 的安装来源与 APK 签名要求。文件名标记为 unsigned 的 Android 包在下载区提示需先签名。
 
 页面不展示 Cloud 发布页入口、更新通道和来源说明：软件内本来就不显示「检查更新」按钮，通道名对访客也没有意义。
 
@@ -21,13 +21,18 @@
 ```
 public/                 部署上去的就是这个目录
   index.html            页面（自带一份完整的静态内容）
-  style.css tokens.css  样式与设计令牌
-  app.js                可选增强：读取 releases.json 后刷新上面的数字
+  style.css tokens.css  现有样式与设计令牌
+  downloads.css         Linux 分架构布局与下载控件
+  releases-model.js     架构分组、版本选择与格式化
+  releases-view.js      浏览器与静态生成共用的 HTML 渲染
+  app.js                平台筛选与格式选择，不依赖清单请求或模块加载
+  releases-refresh.js   可选增强：刷新清单与失败提示
   releases.json         版本与文件清单（唯一数据源）
   favicon.svg
   assets/live-main.png  软件界面截图
 scripts/
-  fetch-releases.mjs    从 Cloud 拉清单，重写 public/releases.json
+  fetch-releases.mjs    从 Cloud 拉清单，同时更新清单和默认下载内容
+  render-page.mjs       按清单生成 index.html 中标记的区块
   crabnebula-client.mjs 以 API key 换取访问令牌，再请求目录接口
   preview-server.mjs    本地预览（Node 自带模块，无依赖）
 .github/workflows/
@@ -41,6 +46,7 @@ npm run preview      # http://127.0.0.1:5180/
 ```
 
 不需要 `npm install`：预览服务器只用 Node 内置模块。页面本身也可以直接用浏览器打开 `public/index.html`。
+通过文件打开时使用生成的静态内容，平台筛选和格式选择仍可用；通过 HTTP 预览时，还会尝试刷新清单。平台筛选栏直接包含在 HTML 中，不依赖清单刷新成功后才显示。
 
 ## 刷新清单
 
@@ -59,8 +65,10 @@ CRABNEBULA_TOKEN='<Cloud API key>' npm run sync
 - 不给 key 时脚本不写文件、正常退出（`npm run sync:offline` 等价），签入的清单继续生效。CI 里不配 key 时，推送触发的部署会警告；定时或手动刷新会失败，避免「没刷新也报成功」。
 - 脚本会保留旧版本已有的更新说明，不会因为新版本没带 notes 就把历史清空。
 - 只同步 `Published` 状态的版本，使用 Cloud 的 `pubDate` 作为发布日期。安装包文件名中明确的 ARM64 / x86_64 优先于更新平台字段，避免上传时填错平台造成下载误标。
+- 同步成功后自动生成 HTML 默认内容；不加载脚本时也能看到相同的 Linux 架构和 Android 下载。手工改清单后执行 `npm run build`，GitHub Pages 部署前也会执行该命令。
+- 页面先显示构建时的安装包，再尝试读取清单。刷新失败时保留下载入口并显示提示，已加载的筛选和格式选择仍然可用。
 
-`npm test` 使用 Node 内置测试框架，验证认证、失败时保留原清单、发布状态与安装包映射；不需要安装依赖或提供真实 key。
+`npm test` 使用 Node 内置测试框架，验证认证、失败保留、发布状态、架构映射、独立版本、Android、HTML 转义和静态生成；不需要安装依赖或提供真实 key。
 
 ## 发布到 GitHub Pages
 
@@ -88,6 +96,6 @@ CRABNEBULA_TOKEN='<Cloud API key>' npm run sync
 
 ## 维护约定
 
-- 换版本只改 `public/releases.json`（或跑 `npm run sync`）。页面里 `<!-- begin:readings -->` 与 `<!-- begin:releases -->` 之间是可以被 `app.js` 整段替换的种子内容，保持结构一致即可。
+- 换版本运行 `npm run sync`；手动修改 `public/releases.json` 后运行 `npm run build`。页面里 readings / releases / stamp 标记之间的内容由共享渲染模块生成，不手工维护第二份版本信息。
 - 文件编号（`01M6...` 这样的 ULID）是 Cloud 上的资产 id，换版本时整段换掉，不要改写。
 - 页面上所有数字都来自清单：文件名、字节数、发布日期。不要手写「下载量」「用户数」这类没有出处的数字。

@@ -27,6 +27,10 @@ async function workspace(t, { releases = [published], authError = false } = {}) 
   t.after(() => rm(dir, { recursive: true, force: true }));
   await cp(join(root, "scripts"), join(dir, "scripts"), { recursive: true });
   await mkdir(join(dir, "public"));
+  await Promise.all([
+    cp(join(root, "package.json"), join(dir, "package.json")),
+    ...["index.html", "releases-model.js", "releases-view.js"].map((file) => cp(join(root, "public", file), join(dir, "public", file))),
+  ]);
   const dataPath = join(dir, "public", "releases.json");
   await writeFile(dataPath, JSON.stringify(snapshot));
   const mockPath = join(dir, "mock-cloud.mjs");
@@ -69,6 +73,9 @@ test("有效 API key 先换取访问令牌，再将新版本写入清单", async
   const data = JSON.parse(await readFile(files.dataPath, "utf8"));
   assert.equal(data.latestByPlatform["windows-x86_64"].version, "0.3.28");
   assert.equal(data.releases[0].assets[0].bytes, 6730155);
+  const html = await readFile(join(files.dir, "public", "index.html"), "utf8");
+  assert.match(html, /https:\/\/cdn\.crabnebula\.app\/asset\/asset-new/);
+  assert.match(html, /1 个安装包，1 次发布/);
   assert.match(result.stdout, /wrote public\/releases.json/);
   assert.doesNotMatch(result.stdout + result.stderr + JSON.stringify(data), /test-api-key|test-access-token/);
 });
@@ -103,6 +110,7 @@ test("安装包架构以明确的文件名为准，Android 平台归一化为页
 test("认证失败时返回非零状态并完整保留原清单", async (t) => {
   const files = await workspace(t, { authError: true });
   const before = await readFile(files.dataPath, "utf8");
+  const pageBefore = await readFile(join(files.dir, "public", "index.html"), "utf8");
   await assert.rejects(sync(files), (err) => {
     assert.equal(err.code, 1);
     assert.match(err.stderr, /apiKeys\.authenticate: 401 unauthenticated/);
@@ -110,6 +118,7 @@ test("认证失败时返回非零状态并完整保留原清单", async (t) => {
     return true;
   });
   assert.equal(await readFile(files.dataPath, "utf8"), before);
+  assert.equal(await readFile(join(files.dir, "public", "index.html"), "utf8"), pageBefore);
 });
 
 test("离线模式跳过认证并保留原清单", async (t) => {

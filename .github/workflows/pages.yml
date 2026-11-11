@@ -73,13 +73,18 @@ jobs:
         run: |
           node -e 'const d=JSON.parse(require("node:fs").readFileSync("public/releases.json","utf8"));const rows=Object.entries(d.latestByPlatform||{}).map(([p,v])=>"| "+p+" | "+v.version+" |");const lines=["### 发布清单","","| 平台 | 最新版本 |","| --- | --- |",...rows,"","生成时间："+d.generatedAt,"Cloud token："+(process.env.CRABNEBULA_TOKEN?"已配置":"未配置")];console.log(lines.join("\n"))' >> "$GITHUB_STEP_SUMMARY"
 
-      # The page is hand-written, so a syntax slip ships straight to the CDN.
-      # This catches it before the artifact is built.
+      - name: Generate the static download content
+        run: npm run build
+
       - name: Check the page and its data
         run: |
           test -f public/index.html
           test -f public/releases.json
           node --check public/app.js
+          node --check public/releases-refresh.js
+          node --check public/releases-model.js
+          node --check public/releases-view.js
+          node --check scripts/render-page.mjs
           node -e "JSON.parse(require('node:fs').readFileSync('public/releases.json', 'utf8'))"
           npm test
 

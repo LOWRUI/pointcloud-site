@@ -1,0 +1,83 @@
+/* 平台下载沿用现有石墨色表面；Linux 内部以架构分栏。 */
+[data-downloads], [data-release-list] { min-inline-size: 0; }
+
+.reading--linux { gap: var(--space-md); }
+
+.linux-builds {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-md);
+}
+
+.linux-build {
+  display: grid;
+  align-content: start;
+  gap: var(--space-sm);
+  min-inline-size: 0;
+}
+
+.linux-build + .linux-build {
+  border-inline-start: var(--rule-hair) solid var(--color-rule);
+  padding-inline-start: var(--space-md);
+}
+
+.linux-build__name {
+  font-family: var(--font-outlier);
+  font-size: var(--text-md);
+  line-height: 1.4;
+  letter-spacing: 0;
+}
+
+.linux-build__hint {
+  color: var(--color-muted);
+  font-size: var(--text-xs);
+  margin-block-start: calc(-1 * var(--space-xs));
+}
+
+.linux-build .reading__value {
+  font-size: clamp(1.75rem, 2.2vw + 0.3rem, 2.5rem);
+  overflow-wrap: anywhere;
+}
+
+.linux-build .reading__when { gap: var(--space-2xs) var(--space-xs); }
+.linux-build .picker__item { flex-wrap: wrap; gap: var(--space-xs); padding-inline: var(--space-sm); }
+
+.reading__unavailable, .reading__note, .sync-status, .releases-empty {
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+  line-height: 1.6;
+}
+
+.reading__note { color: var(--color-accent); }
+.reading--none { padding-block: var(--space-md); }
+.sync-status:not(:empty) { margin-top: var(--space-sm); }
+
+.btn, .platform, .picker__item, .releases__get { min-block-size: 44px; }
+.releases__get { display: inline-flex; align-items: center; }
+.picker__item:active { background: var(--color-paper); }
+.platform:active { border-color: var(--color-accent); }
+
+@media (min-width: 60.01rem) {
+  .reading { padding: 20px; gap: var(--space-xs); }
+  .reading[data-download-platform] { grid-template-columns: minmax(0, 1fr) auto; }
+  .reading[data-download-platform] .reading__os,
+  .reading[data-download-platform] .reading__when,
+  .reading[data-download-platform] .reading__note { grid-column: 1 / -1; }
+  .reading[data-download-platform] .reading__actions { grid-column: 2; grid-row: 2; }
+  .reading--linux { gap: var(--space-md); }
+  .linux-build { gap: var(--space-xs); }
+  .linux-build__hint { margin-block-start: calc(-1 * var(--space-2xs)); }
+  .reading--none { padding-block: var(--space-sm); }
+}
+
+@media (max-width: 30rem) {
+  .linux-builds { grid-template-columns: minmax(0, 1fr); gap: var(--space-lg); }
+  .linux-build + .linux-build {
+    border-inline-start: 0;
+    padding-inline-start: 0;
+    border-block-start: var(--rule-hair) solid var(--color-rule);
+    padding-block-start: var(--space-lg);
+  }
+  .linux-build .reading__value { font-size: var(--text-display-s); }
+  .linux-build .picker__item { flex-wrap: nowrap; }
+}

@@ -1,0 +1,48 @@
+{
+  "updatedAt": "2026-11-11T06:52:59.430Z",
+  "version": 2,
+  "source": "manual",
+  "originCommand": "",
+  "qaMode": "standard",
+  "qaFocus": [
+    "Linux 分架构版本与格式",
+    "Android 真实安装包与筛选",
+    "共享静态生成和失败回退",
+    "资源转义与响应式可访问性"
+  ],
+  "ui": {
+    "required": true,
+    "designContract": true,
+    "sourcePriority": [
+      "plan.md",
+      ".helloagents/DESIGN.md",
+      "hello-ui"
+    ],
+    "styleAdvisor": {
+      "required": false,
+      "reason": "",
+      "focus": []
+    },
+    "visualValidation": {
+      "required": true,
+      "reason": "架构选择与 Android 下载需在桌面和手机核对",
+      "screens": [
+        "1280x800",
+        "375x812"
+      ],
+      "states": [
+        "正常下载",
+        "Linux 分架构",
+        "筛选",
+        "键盘",
+        "清单失败静态回退"
+      ]
+    }
+  },
+  "advisor": {
+    "required": false,
+    "reason": "",
+    "focus": [],
+    "preferredSources": []
+  }
+}

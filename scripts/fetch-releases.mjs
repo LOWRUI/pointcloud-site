@@ -17,10 +17,13 @@ import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join, resolve } from "node:path";
 import { createCloudClient } from "./crabnebula-client.mjs";
+import { renderPageHtml } from "./render-page.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(here, "..");
 const dataPath = join(repoRoot, "public", "releases.json");
+const pagePath = join(repoRoot, "public", "index.html");
+let snapshotWritten = false;
 
 const ORG = process.env.CN_ORG ?? "hbzsy";
 const APP = process.env.CN_APP ?? "pointcloud-studio";
@@ -193,9 +196,13 @@ async function main() {
   const cloud = await createCloudClient({ apiKey: TOKEN, directoryApi: API });
   const releases = await readPublishedReleases(cloud, existing);
   const next = makeSnapshot(releases, existing);
+  const page = renderPageHtml(await readFile(pagePath, "utf8"), next);
 
   await writeFile(dataPath, `${JSON.stringify(next, null, 2)}\n`, "utf8");
+  snapshotWritten = true;
+  await writeFile(pagePath, page, "utf8");
   console.log(`wrote public/releases.json: ${next.releases.length} releases, ${countAssets(next)} assets`);
+  console.log("已同步更新 public/index.html 中的默认下载内容。");
   report(next);
 }
 
@@ -214,6 +221,8 @@ function report(data) {
 
 main().catch((err) => {
   console.error(`release:sync failed: ${err.message}`);
-  console.error("public/releases.json was not modified.");
+  console.error(snapshotWritten
+    ? "public/releases.json 已更新，但静态页面写入失败。修复文件写入问题后运行 npm run build。"
+    : "public/releases.json was not modified.");
   process.exitCode = 1;
 });

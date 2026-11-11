@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-11T05:59:44.193Z",
+  "generatedAt": "2026-11-11T06:44:56.073Z",
   "generator": "scripts/fetch-releases.mjs",
   "app": {
     "name": "PointCloud Studio",
@@ -10,65 +10,86 @@
   "latestByPlatform": {
     "windows-x86_64": {
       "version": "0.3.28",
-      "assetId": "01M746TPX2BA39K1FEW1XBMQMJ"
+      "assetId": "01M74KPQ8WBSKXCTGFX84V994Q"
     },
     "linux-aarch64": {
       "version": "0.3.28",
-      "assetId": "01M747NXS53Z2QPBA2T2AS8T78"
+      "assetId": "01M74KQH0EEANPFDX328HERVG6"
     },
     "android": {
       "version": "0.3.28",
-      "assetId": "01M747XTM0A32TSYVWKJPFWEMN"
+      "assetId": "01M74M43ZG7JTTBZ877ET5X1QH"
     },
     "linux-x86_64": {
-      "version": "0.3.27",
-      "assetId": "01M6MTAGN7XD2X8NRFFYG6XDGV"
+      "version": "0.3.28",
+      "assetId": "01M74MG6ZZP6NJXMF2RNP21P6R"
     }
   },
   "releases": [
     {
-      "id": "01M746SVK19KV62F8YSSMV0Z6E",
+      "id": "01M74KKB6N6T9JTGSFNWPW4F06",
       "version": "0.3.28",
       "channel": "prod",
       "status": "Published",
-      "publishedAt": "2026-11-11T02:49:12.08Z",
+      "publishedAt": "2026-11-11T06:38:42.759Z",
       "summary": "工具窗独立显示与界面精简",
       "notes": "PointCloud Studio - Release Notes\n================================================================================\n\nv0.3.28 - 工具窗独立显示与界面精简 (2026-11-09)\n--------------------------------------------------------------------------------\n新增功能\n- 菜单里的工具窗现在可以拖出主窗口，成为独立的系统窗口：渲染设置、设备参数、通道配置、点云过滤、算法、日志与丢包诊断、性能、偏好、关于，以及软件更新、广播发现和精准度计算面板都能拖到主界面旁边，方便一边看主画面一边调参数；有双屏时可以直接放到另一块屏幕上。同一类窗口只会打开一个，重复点击相当于把已有窗口调到前面；关掉窗口后即释放，再次打开是全新的一份。浏览器预览和 Android 手机版仍在软件窗口内显示，操作方式不变。\n\n问题修复\n- 修复 Linux 上拖动浮动工具窗时留下的黑色拖影：X11 下子窗口的裁剪与显示更新会等服务器确认完成后再生效，新露出的区域不再先填背景、后补画面，拖动时不再出现黑块；Windows 与 Android 不受影响。\n- 修复菜单工具窗首次打开时的一圈黑色描边：窗口面板自动获得键盘焦点时，系统默认的焦点轮廓会落在自绘边框内侧形成黑线。现在只去掉外层容器的这道轮廓，窗口里的按钮和输入框仍保留键盘焦点提示。\n- 修复英文界面下连接区按钮文字被截断：连接、广播、网络三个操作在英文下文字更长，之前会被挤断或省略。现在按内容自适应排列，位置不够时整行换行，不再截断；广播按钮在英文下显示为 Scan 并保留完整说明。中文界面与之前一致。\n\n优化改进\n- 工具窗标题栏统一：所有前端工具窗改用同一套拖动标题栏，高度 44 像素、标题 13 像素、收起与关闭图标 30 像素；去掉英文眉题和没有实际作用的装饰标签，保留连接型号、采样进度、读取与同步、更新状态这些真实信息。软件更新窗口在下载期间关闭按钮禁用，避免误关。\n- 诊断工具（日志 / 丢包）精简：窗口默认由 900×700 收紧到 540×440，标题栏更轻，导航改为分段按钮，去掉重复的「可拖动」「就绪」提示和底部关闭区。日志的四个级别由成对按钮改为一行两个开关；UDP 模式用分段按钮；采集说明默认折叠；没有历史时不再显示空的历史提示。丢包页突出累计丢包率与丢包数，其他统计紧凑排列；刷新与重置改为带名称和提示的图标按钮；切换标签时滚动位置回到顶部，不再沿用上一页的位置。\n- 渲染设置精简：常用设置、渲染颜色、点云姿势三页去掉卡片嵌套和重复标识，按用途平铺成设置行。点大小与清晰度（或深度点尺度）跟随点渲染模式自动切换；开关类选项改为带状态文字的开关；分段选择、开关点击区和输入框统一为 32 像素高。色带和三种预设更紧凑，自定义颜色节点默认折叠，端点锁定、默认色表和手动应用全部保留。窗口默认 500×740，缩窄到 440 像素时正文可滚动，导航与操作仍可用；关闭统一走标题栏，切换页面回到顶部。\n- 偏好窗体精简：默认尺寸由 760×720 收紧到 560×460，渲染、录制、快捷键三页改为单层分组，启动偏好三项等宽三列、整体 32 像素高。运行后端与指针输入、显卡信息只显示一份，技术说明折叠起来；默认录制路径不再重复显示，长路径自动换行，选择和恢复默认集中排布。快捷键的值与修改入口放在一起，按 Esc 取消捕获，切换页签或收起窗体自动解除捕获；页签支持方向键与 Home/End 导航。加载、保存、选择系统目录期间禁用重复操作，出错时就地显示并可重新读取；去掉固定的「已保存」页脚，真实状态就地呈现。\n- 关于窗口与通道摘要精简：关于窗口默认尺寸由 760×720 收紧到 540×360，产品名与版本集中展示，删掉重复介绍和大卡片；开源组件声明与更新日志默认折叠、按需加载，登录后仍可使用更新检查与开发者模式。通道摘要去掉「雷达型号」和「已开启视场」，保留线束范围、启用数量、四路视场和全部选择操作。",
       "assets": [
         {
-          "id": "01M746TPX2BA39K1FEW1XBMQMJ",
+          "id": "01M74KPQ8WBSKXCTGFX84V994Q",
           "platform": "windows-x86_64",
           "kind": "exe",
           "filename": "PointCloud Studio_0.3.28_x64-setup.exe",
           "bytes": 6730155
         },
         {
-          "id": "01M747NXS53Z2QPBA2T2AS8T78",
+          "id": "01M74KQH0EEANPFDX328HERVG6",
           "platform": "linux-aarch64",
           "kind": "deb",
           "filename": "PointCloud Studio_0.3.28_arm64.deb",
           "bytes": 32200032
         },
         {
-          "id": "01M747QE2J5VKBHPJKTPK7M92X",
+          "id": "01M74KRYPYC66HKPK1X7BSQNCY",
           "platform": "linux-aarch64",
           "kind": "appimage",
           "filename": "PointCloud Studio_0.3.28_aarch64.AppImage",
           "bytes": 106240520
         },
         {
-          "id": "01M747VKGQK2Q78V1D782EQMAW",
+          "id": "01M74KXWD99E8YKHE78BQZFJ73",
           "platform": "linux-aarch64",
           "kind": "rpm",
           "filename": "PointCloud Studio-0.3.28-1.aarch64.rpm",
           "bytes": 32204614
         },
         {
-          "id": "01M747XTM0A32TSYVWKJPFWEMN",
+          "id": "01M74M43ZG7JTTBZ877ET5X1QH",
           "platform": "android",
           "kind": "apk",
           "filename": "pointcloud-studio-0.3.28-universal-release-unsigned.apk",
           "bytes": 168623051
+        },
+        {
+          "id": "01M74MG6ZZP6NJXMF2RNP21P6R",
+          "platform": "linux-x86_64",
+          "kind": "deb",
+          "filename": "PointCloud Studio_0.3.28_amd64.deb",
+          "bytes": 36847746
+        },
+        {
+          "id": "01M74MTYR57SDXXGZGKX0FGKAX",
+          "platform": "linux-x86_64",
+          "kind": "appimage",
+          "filename": "PointCloud Studio_0.3.28_amd64.AppImage",
+          "bytes": 112052728
+        },
+        {
+          "id": "01M74N2JX3PQCREPMDHNASA271",
+          "platform": "linux-x86_64",
+          "kind": "rpm",
+          "filename": "PointCloud Studio-0.3.28-1.x86_64.rpm",
+          "bytes": 36839743
         }
       ]
     },
