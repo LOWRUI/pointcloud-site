@@ -33,13 +33,43 @@ jobs:
         with:
           node-version: "24"
 
-      # Refresh public/releases.json when a Cloud token is configured. The script
-      # exits 0 and changes nothing when the variable is empty, so the
-      # checked-in snapshot is published as-is until a secret is added.
+      # Refresh public/releases.json from CrabNebula Cloud. The generator exits 0
+      # and leaves the file untouched when the token is empty, which used to make
+      # a scheduled run report success while publishing a frozen snapshot. A
+      # missing token is a warning on push runs (they only publish the page) and
+      # a hard failure on the scheduled run, whose whole purpose is the refresh.
       - name: Refresh the release snapshot
         env:
           CRABNEBULA_TOKEN: ${{ secrets.CRABNEBULA_TOKEN }}
-        run: node scripts/fetch-releases.mjs
+        run: |
+          if [ -z "$CRABNEBULA_TOKEN" ]; then
+            if [ "$GITHUB_EVENT_NAME" = "schedule" ]; then
+              echo "::error title=缺少 CRABNEBULA_TOKEN::定时刷新拿不到 Cloud token，站只会继续发布仓库里冻结的清单。请在 Settings → Secrets and variables → Actions 添加仓库级 secret CRABNEBULA_TOKEN（对 hbzsy 组织有读权限），并确认它没有只挂在某个 environment 上。"
+              exit 1
+            fi
+            echo "::warning title=清单未刷新::没有 CRABNEBULA_TOKEN，本次只发布仓库中签入的 public/releases.json。"
+          fi
+          node scripts/fetch-releases.mjs --verbose
+
+      # With a token the generator always rewrites generatedAt, so an untouched
+      # file means the script never reached the directory API at all.
+      - name: Confirm the snapshot was regenerated
+        env:
+          CRABNEBULA_TOKEN: ${{ secrets.CRABNEBULA_TOKEN }}
+        run: |
+          if [ -n "$CRABNEBULA_TOKEN" ] && git diff --quiet -- public/releases.json; then
+            echo "::error title=清单没有更新::token 已提供，但 public/releases.json 没有被重写，说明请求没有真正打到 Cloud 目录接口。"
+            exit 1
+          fi
+
+      # The run page answers "what did the last refresh actually publish", so a
+      # stale snapshot is visible without opening the job log.
+      - name: Summarize the snapshot
+        if: always()
+        env:
+          CRABNEBULA_TOKEN: ${{ secrets.CRABNEBULA_TOKEN }}
+        run: |
+          node -e 'const d=JSON.parse(require("node:fs").readFileSync("public/releases.json","utf8"));const rows=Object.entries(d.latestByPlatform||{}).map(([p,v])=>"| "+p+" | "+v.version+" |");const lines=["### 发布清单","","| 平台 | 最新版本 |","| --- | --- |",...rows,"","生成时间："+d.generatedAt,"Cloud token："+(process.env.CRABNEBULA_TOKEN?"已配置":"未配置")];console.log(lines.join("\n"))' >> "$GITHUB_STEP_SUMMARY"
 
       # The page is hand-written, so a syntax slip ships straight to the CDN.
       # This catches it before the artifact is built.

@@ -54,14 +54,14 @@ CRABNEBULA_TOKEN=<Cloud token> npm run sync
 ```
 
 - Token 在 Cloud 的 **Settings → API keys** 建，给这个组织读权限即可。
-- 不给 token 时脚本什么都不写、正常退出（`npm run sync:offline` 等价），签入的清单继续生效——静态页本来就不需要联网调 API。
+- 不给 token 时脚本什么都不写、正常退出（`npm run sync:offline` 等价），签入的清单继续生效——静态页本来就不需要联网调 API。CI 里不配 token 时，推送触发的部署照常，但每日定时任务会判为失败，避免「没刷新也报成功」。
 - 脚本会保留旧版本已有的更新说明，不会因为新版本没带 notes 就把历史清空。
 
 ## 发布到 GitHub Pages
 
 1. 新建仓库，把本目录推上去（默认分支 `main`）。
 2. 仓库 **Settings → Pages → Build and deployment → Source** 选 **GitHub Actions**。
-3. 需要每天自动刷新清单时，在 **Settings → Secrets and variables → Actions** 加 `CRABNEBULA_TOKEN`；不加也能正常部署，只是清单保持签入时的内容。
+3. 定时刷新清单需要 **Settings → Secrets and variables → Actions** 里的仓库级 secret `CRABNEBULA_TOKEN`（对 `hbzsy` 组织有读权限）。没配也能推送部署，但每天那次定时任务会直接失败并标红——它存在的意义就是拉新版本，拉不到就不该报成功。
 4. 推送后工作流会发布 `public/` 目录。
 
 ## 要让外部访客真正下得了，还需要在 Cloud 上做三件事
