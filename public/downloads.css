@@ -1,6 +1,29 @@
 /* 平台下载沿用现有石墨色表面；Linux 内部以架构分栏。 */
 [data-downloads], [data-release-list] { min-inline-size: 0; }
 
+.readings { overflow: visible; }
+.reading:first-child { border-start-start-radius: var(--radius-card); border-start-end-radius: var(--radius-card); }
+.reading:last-child { border-end-start-radius: var(--radius-card); border-end-end-radius: var(--radius-card); }
+
+.picker { position: relative; }
+.picker[open] { z-index: var(--z-raised); }
+.picker__menu {
+  position: absolute;
+  inset-block-start: 100%;
+  inset-inline-start: 0;
+  inline-size: max(100%, 17rem);
+  max-inline-size: calc(100vw - 2 * var(--space-lg));
+  max-block-size: var(--picker-max-height, min(20rem, 50vh));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border-color: var(--color-rule-2);
+  box-shadow: var(--shadow-popover);
+}
+.linux-build + .linux-build .picker__menu,
+.reading[data-download-platform] .picker__menu { inset-inline-start: auto; inset-inline-end: 0; }
+.picker--above .picker__menu { inset-block-start: auto; inset-block-end: calc(100% + var(--space-xs)); margin-block-start: 0; }
+.picker__recommendation { margin-inline-start: var(--space-xs); color: var(--color-accent); font-size: var(--text-xs); }
+
 .reading--linux { gap: var(--space-md); }
 
 .linux-builds {

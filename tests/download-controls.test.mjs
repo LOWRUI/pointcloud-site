@@ -32,7 +32,7 @@ function page() {
     addEventListener(type, handler) { handlers.set(type, handler); },
   };
   // 仅运行静态交互脚本，模拟清单模块完全无法加载。
-  runInNewContext(script, { document });
+  runInNewContext(script, { document, window: { addEventListener() {} } });
   return {
     rows, buttons, status,
     click(key) { handlers.get("click")({ target: buttons.find((button) => button.dataset.platform === key) }); },

@@ -50,6 +50,22 @@ test("同版本分批上传的格式合并到所属架构，重复资产只显�
   assert.doesNotMatch(arm, /x64-image/);
 });
 
+test("两个 Linux 架构的 deb 格式标注推荐，其他格式不误标", () => {
+  const data = snapshot([release("0.3.28", [
+    asset("x64-deb", "linux-x86_64"),
+    asset("x64-image", "linux-x86_64", "appimage"),
+    asset("arm-deb", "linux-aarch64"),
+    asset("arm-rpm", "linux-aarch64", "rpm"),
+  ])]);
+  const html = renderReadings(data);
+  for (const key of ["linux-x86_64", "linux-aarch64"]) {
+    const panel = linuxPanel(html, key);
+    assert.equal((panel.match(/class="picker__recommendation"/g) ?? []).length, 1);
+    assert.match(panel, /deb <span class="picker__recommendation">推荐<\/span>/);
+    assert.match(panel, /aria-label="下载 Linux [^"]+ deb（推荐）"/);
+  }
+});
+
 test("Android APK 有下载入口和独立筛选，Linux 筛选区分架构", () => {
   const data = snapshot([release("0.3.28", [
     asset("x64", "linux-x86_64"),

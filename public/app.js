@@ -1,5 +1,7 @@
 // 静态下载交互独立于清单刷新；直接打开 HTML 时也能筛选平台。
-(() => {
+"use strict";
+
+{
   let selectedPlatform = "all";
 
   function closePickers({ restoreFocus = false } = {}) {
@@ -33,6 +35,17 @@
     }
   }
 
+  function positionPicker(picker) {
+    if (!picker.open) return;
+    const menu = picker.querySelector(".picker__menu");
+    const trigger = picker.querySelector("summary").getBoundingClientRect();
+    const below = window.innerHeight - trigger.bottom - 16;
+    const above = trigger.top - 16;
+    const showAbove = below < Math.min(menu.scrollHeight, 320) && above > below;
+    picker.classList.toggle("picker--above", showAbove);
+    picker.style.setProperty("--picker-max-height", `${Math.max(96, Math.min(320, showAbove ? above : below))}px`);
+  }
+
   function bindControls() {
     document.addEventListener("click", (event) => {
       const button = event.target.closest?.(".platform");
@@ -42,9 +55,15 @@
     document.addEventListener("keydown", (event) => {
       if (event.key === "Escape") closePickers({ restoreFocus: true });
     });
+    document.addEventListener("toggle", (event) => {
+      if (event.target.matches?.("details.picker")) positionPicker(event.target);
+    }, true);
+    window.addEventListener("resize", () => {
+      for (const picker of document.querySelectorAll("details.picker[open]")) positionPicker(picker);
+    });
   }
 
   bindControls();
   initializeFilters();
   document.addEventListener("releases:updated", initializeFilters);
-})();
+}

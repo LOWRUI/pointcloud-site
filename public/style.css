@@ -249,9 +249,8 @@ button, input, select { font: inherit; }
 .reading__actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-xs); }
 
 /* ---------- the format picker ---------- */
-/* A platform that ships several formats opens a menu instead of guessing which
- * file the visitor wants. It expands in flow, so the card's rounded clipping
- * cannot cut the list off, and it stays usable with no script at all. */
+/* 多种格式用原生 details 选择；downloads.css 将列表定位为悬浮层，
+ * 展开不改变下载区高度，无脚本时仍可打开与下载。 */
 
 .picker { inline-size: 100%; }
 

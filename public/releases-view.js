@@ -18,8 +18,9 @@ function channelChip(channel) {
 }
 
 function formatLink(asset, meta) {
-  return `<a class="picker__item" href="${e(assetUrl(asset.id))}" download aria-label="下载 ${e(meta.label)} ${e(KIND_LABEL[asset.kind] ?? asset.kind)}">
-  <span class="picker__text"><span class="picker__label">${e(KIND_LABEL[asset.kind] ?? asset.kind)}</span><span class="picker__hint">${e(KIND_HINT[asset.kind] ?? "安装包")}</span></span>
+  const recommended = meta.os === "Linux" && asset.kind === "deb";
+  return `<a class="picker__item" href="${e(assetUrl(asset.id))}" download aria-label="下载 ${e(meta.label)} ${e(KIND_LABEL[asset.kind] ?? asset.kind)}${recommended ? "（推荐）" : ""}">
+  <span class="picker__text"><span class="picker__label">${e(KIND_LABEL[asset.kind] ?? asset.kind)}${recommended ? ' <span class="picker__recommendation">推荐</span>' : ""}</span><span class="picker__hint">${e(KIND_HINT[asset.kind] ?? "安装包")}</span></span>
   <span class="picker__size">${e(sizeText(asset.bytes))}</span>
 </a>`;
 }

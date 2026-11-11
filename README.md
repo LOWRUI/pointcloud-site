@@ -8,6 +8,7 @@
 ## 页面里有什么
 
 - **下载区**：Windows、Linux、Android 的最新版本、发布日期、文件大小与下载入口。Linux 分 x86_64 和 ARM64 两栏，各自选择最新稳定版、各自提供 deb / AppImage / rpm 格式；某个架构更新较慢时仍保留它自己的最新版本。Android 提供 APK；没有安装包的平台如实显示暂无。
+- **格式选择**：下载按钮展开悬浮列表，不撑高页面；屏幕底部空间不足时向上展开，点击外部、按 Escape 或选择格式后收起。
 - **界面截图**：`public/assets/live-main.png`，取自软件真实运行画面。
 - **版本记录**：全部 / Windows / Linux x86_64 / Linux ARM64 / Android，只有实际有安装包的平台才出现筛选按钮；文件按发布时间倒序列出，显示版本、更新要点、文件名、大小、发布日期和下载链接。
 - **安装**：Windows 的 SmartScreen 提示、Linux 的架构识别和 deb / AppImage / rpm 安装、Android 的安装来源与 APK 签名要求。文件名标记为 unsigned 的 Android 包在下载区提示需先签名。

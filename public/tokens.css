@@ -32,6 +32,7 @@
   --radius-pill: 6px;
   --rule-hair: 1px;
   --shadow-card: none;
+  --shadow-popover: 0 12px 32px oklch(0% 0 0 / 0.35);
   --tracking-display: -0.03em;
   --display-weight: 500;
 
