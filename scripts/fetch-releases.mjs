@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 // Regenerates public/releases.json from the CrabNebula Cloud directory API.
 //
-// The directory API is authenticated: pass a Cloud session token or an API key
-// that can read this organisation:
+// Pass an organisation API key. It is exchanged for a short-lived access token
+// before the directory API is queried:
 //
 //   PowerShell:  $env:CRABNEBULA_TOKEN = "<token>"; npm run sync
 //   bash:        CRABNEBULA_TOKEN=<token> npm run sync
@@ -16,6 +16,7 @@ import { readFile, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join, resolve } from "node:path";
+import { createCloudClient } from "./crabnebula-client.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(here, "..");
@@ -24,8 +25,9 @@ const dataPath = join(repoRoot, "public", "releases.json");
 const ORG = process.env.CN_ORG ?? "hbzsy";
 const APP = process.env.CN_APP ?? "pointcloud-studio";
 const API = process.env.CN_API ?? "https://api.crabnebula.app/directory/rspc";
-const TOKEN = process.env.CRABNEBULA_TOKEN ?? process.env.CRABNEBULA_API_KEY ?? "";
-const ASSET_BASE = "https://cdn.crabnebula.app/asset/";
+const TOKEN = [process.env.CRABNEBULA_TOKEN, process.env.CRABNEBULA_API_KEY, process.env.CN_API_KEY]
+  .map((value) => value?.trim())
+  .find(Boolean) ?? "";
 
 const args = new Set(process.argv.slice(2));
 const offline = args.has("--offline") || args.has("--dry-run");
@@ -35,43 +37,25 @@ function log(...parts) {
   if (verbose) console.log(...parts);
 }
 
-/** rspc over the directory API: POST-ish GET with the input as a JSON query param. */
-async function rpc(method, input) {
-  const url = new URL(`${API}/${method}`);
-  url.searchParams.set("input", JSON.stringify(input));
-  const res = await fetch(url, {
-    headers: {
-      accept: "application/json",
-      authorization: `Bearer ${TOKEN}`,
-    },
-  });
-  const text = await res.text();
-  let body;
-  try {
-    body = JSON.parse(text);
-  } catch {
-    throw new Error(`${method}: not JSON (HTTP ${res.status}): ${text.slice(0, 160)}`);
-  }
-  if (body?.result?.type === "error") {
-    const { code, message } = body.result.data ?? {};
-    throw new Error(`${method}: ${code ?? "?"} ${message ?? "error"}`);
-  }
-  const data = body?.result?.data;
-  if (data === undefined) throw new Error(`${method}: unexpected envelope ${text.slice(0, 160)}`);
-  return data;
-}
-
-/** Platform comes from Cloud's updater platform, or from the file name as a fallback. */
+/** Explicit filename architecture takes precedence over Cloud's updater metadata. */
 function platformOf(asset) {
   const declared = asset.publicPlatform ?? asset.updatePlatform ?? asset.platform;
-  if (typeof declared === "string" && declared.includes("-")) return declared;
   const name = (asset.name ?? asset.filename ?? "").toLowerCase();
+  const explicitArm = /(?:^|[._-])(?:aarch64|arm64)(?=[._-]|$)/.test(name);
+  const explicitX64 = /(?:^|[._-])(?:x86_64|amd64|x64)(?=[._-]|$)/.test(name);
+  if (name.endsWith(".apk") || declared === "android-apk") return "android";
+  if (explicitArm || explicitX64) {
+    const arch = explicitArm ? "aarch64" : "x86_64";
+    if (/\.(appimage|deb|rpm)$/.test(name)) return `linux-${arch}`;
+    if (/\.(exe|msi)$/.test(name)) return `windows-${arch}`;
+    if (/\.(dmg|app\.tar\.gz)$/.test(name)) return `darwin-${arch}`;
+  }
+  if (typeof declared === "string" && declared.includes("-")) return declared;
   if (name.endsWith(".exe") || name.endsWith(".msi")) return "windows-x86_64";
   if (name.endsWith(".appimage") || name.endsWith(".deb") || name.endsWith(".rpm")) return "linux-x86_64";
   if (name.endsWith(".dmg") || name.endsWith(".app.tar.gz")) {
     return /aarch64|arm64/.test(name) ? "darwin-aarch64" : "darwin-x86_64";
   }
-  if (name.endsWith(".apk")) return "android";
   return "unknown";
 }
 
@@ -129,67 +113,53 @@ async function loadExisting() {
   }
 }
 
-async function main() {
-  const existing = await loadExisting();
-
-  if (offline) {
-    console.log("offline: public/releases.json left unchanged.");
-    report(existing);
-    return;
+function releaseRecord(detail, summary, previous) {
+  const version = detail.version ?? summary.version;
+  if (typeof version !== "string" || !version || !Array.isArray(detail.assets)) {
+    throw new Error("distribution.release.get: 发布详情格式不符合预期");
   }
-  if (!TOKEN) {
-    console.log("no CRABNEBULA_TOKEN / CRABNEBULA_API_KEY set: public/releases.json left unchanged.");
-    console.log("Set a Cloud token (Settings → API keys, read access) and re-run to refresh.");
-    report(existing);
-    return;
-  }
-
-  const listed = await rpc("distribution.release.list", { org: ORG, app: APP });
-  const releases = Array.isArray(listed) ? listed : (listed?.releases ?? []);
-  log(`${releases.length} releases listed`);
-
-  const notesByVersion = new Map();
-  for (const release of existing.releases ?? []) {
-    if (release?.version && release?.notes) notesByVersion.set(release.version, release.notes);
-  }
-  const summaryByVersion = new Map();
-  for (const release of existing.releases ?? []) {
-    if (release?.version && release?.summary) summaryByVersion.set(release.version, release.summary);
-  }
-
-  const out = [];
-  for (const summary of releases) {
-    // The list may already carry assets; otherwise ask for the full release.
-    let detail = summary;
-    if (!Array.isArray(summary.assets) || summary.assets.length === 0) {
-      detail = await rpc("distribution.release.get", String(summary.id));
-      await new Promise((r) => setTimeout(r, 120)); // keep the API comfortable
-    }
-    const version = detail.version ?? summary.version;
-    const assets = (detail.assets ?? []).map((asset) => ({
+  const notes = plainNotes(detail.notes ?? detail.changelog, previous?.notes);
+  return {
+    id: detail.id ?? summary.id,
+    version,
+    channel: detail.channel ?? summary.channel ?? "prod",
+    status: detail.status ?? summary.status,
+    publishedAt: detail.pubDate ?? detail.publishedAt ?? detail.published_at ?? summary.pubDate ?? summary.publishedAt ?? null,
+    summary: previous?.summary ?? summaryFromNotes(notes),
+    notes,
+    assets: detail.assets.map((asset) => ({
       id: asset.id,
       platform: platformOf(asset),
       kind: kindOf(asset),
-      filename: asset.name ?? asset.filename ?? `${version}`,
+      filename: asset.name ?? asset.filename ?? version,
       bytes: Number(asset.size ?? asset.bytes ?? 0),
-    }));
-    const notes = plainNotes(detail.notes ?? detail.changelog, notesByVersion.get(version));
-    out.push({
-      id: detail.id ?? summary.id,
-      version,
-      channel: detail.channel ?? summary.channel ?? "prod",
-      status: detail.status ?? summary.status ?? "Published",
-      publishedAt: detail.publishedAt ?? detail.published_at ?? summary.publishedAt ?? null,
-      summary: summaryByVersion.get(version) ?? summaryFromNotes(notes),
-      notes,
-      assets,
-    });
+    })),
+  };
+}
+
+async function readPublishedReleases(cloud, existing) {
+  const listed = await cloud.query("distribution.release.list", { org: ORG, app: APP });
+  const all = Array.isArray(listed) ? listed : listed?.releases;
+  if (!Array.isArray(all)) throw new Error("distribution.release.list: 发布列表格式不符合预期");
+  const releases = all.filter((release) => release?.status === "Published");
+  log(`${releases.length} releases listed`);
+  const previous = new Map((existing.releases ?? []).map((release) => [release.version, release]));
+  const out = [];
+  for (const summary of releases) {
+    let detail = summary;
+    if (!Array.isArray(summary.assets) || summary.assets.length === 0) {
+      detail = await cloud.query("distribution.release.get", String(summary.id));
+      await new Promise((resolve) => setTimeout(resolve, 120));
+    }
+    if ((detail?.status ?? summary.status) !== "Published") continue;
+    out.push(releaseRecord(detail, summary, previous.get(detail.version ?? summary.version)));
   }
+  return out.sort((a, b) => compareVersionDesc(a.version, b.version));
+}
 
-  out.sort((a, b) => compareVersionDesc(a.version, b.version));
-
+function makeSnapshot(releases, existing) {
   const latestByPlatform = {};
-  for (const release of out) {
+  for (const release of releases) {
     for (const asset of release.assets) {
       if (!latestByPlatform[asset.platform]) {
         latestByPlatform[asset.platform] = { version: release.version, assetId: asset.id };
@@ -197,7 +167,7 @@ async function main() {
     }
   }
 
-  const next = {
+  return {
     generatedAt: new Date().toISOString(),
     generator: "scripts/fetch-releases.mjs",
     app: existing.app ?? {
@@ -206,12 +176,23 @@ async function main() {
       slug: APP,
       cloudUrl: `https://web.crabnebula.cloud/${ORG}/${APP}`,
     },
-    // The page shows a plain release history and filters by platform, so the
-    // per-channel head (prod / alpha) is not carried any more; "channel" on each
-    // release still says which one it came from.
     latestByPlatform,
-    releases: out,
+    releases,
   };
+}
+
+async function main() {
+  const existing = await loadExisting();
+  if (offline || !TOKEN) {
+    console.log(offline
+      ? "离线模式：public/releases.json 保持不变。"
+      : "未设置 CRABNEBULA_TOKEN / CRABNEBULA_API_KEY / CN_API_KEY，public/releases.json 保持不变。");
+    report(existing);
+    return;
+  }
+  const cloud = await createCloudClient({ apiKey: TOKEN, directoryApi: API });
+  const releases = await readPublishedReleases(cloud, existing);
+  const next = makeSnapshot(releases, existing);
 
   await writeFile(dataPath, `${JSON.stringify(next, null, 2)}\n`, "utf8");
   console.log(`wrote public/releases.json: ${next.releases.length} releases, ${countAssets(next)} assets`);

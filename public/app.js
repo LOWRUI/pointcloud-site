@@ -7,10 +7,10 @@
 
   // One card per operating system, so an OS with no build is said once, not twice.
   const GROUPS = [
-    { key: "windows", label: "Windows", arch: "x86_64" },
-    { key: "linux", label: "Linux", arch: "x86_64" },
-    { key: "macos", label: "macOS", arch: "arm64 与 x86_64" },
-    { key: "android", label: "Android", arch: "arm64" },
+    { key: "windows", label: "Windows" },
+    { key: "linux", label: "Linux" },
+    { key: "macos", label: "macOS" },
+    { key: "android", label: "Android" },
   ];
   const GROUP_OF = {
     "windows-x86_64": "windows",
@@ -26,7 +26,6 @@
     "linux-aarch64": "arm64",
     "darwin-aarch64": "arm64",
     "darwin-x86_64": "x86_64",
-    android: "arm64",
   };
   const KIND_LABEL = {
     exe: "setup.exe",
@@ -179,7 +178,8 @@
 
     const head = el("div", "reading__os");
     head.append(meta.label);
-    head.append(el("span", "reading__arch", meta.arch ?? ""));
+    const arches = [...new Set(group.assets.map((asset) => PLATFORM_ARCH[asset.platform]).filter(Boolean))];
+    if (arches.length) head.append(el("span", "reading__arch", arches.join(" 与 ")));
     card.append(head);
     card.append(el("div", "reading__value", group.version));
 

@@ -5,6 +5,7 @@
   "type": "module",
   "description": "PointCloud Studio 的公开下载站：纯静态页面，文件直连 CrabNebula CDN。",
   "scripts": {
+    "test": "node --test",
     "sync": "node scripts/fetch-releases.mjs",
     "sync:offline": "node scripts/fetch-releases.mjs --offline",
     "preview": "node scripts/preview-server.mjs public 5180"

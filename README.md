@@ -28,6 +28,7 @@ public/                 部署上去的就是这个目录
   assets/live-main.png  软件界面截图
 scripts/
   fetch-releases.mjs    从 Cloud 拉清单，重写 public/releases.json
+  crabnebula-client.mjs 以 API key 换取访问令牌，再请求目录接口
   preview-server.mjs    本地预览（Node 自带模块，无依赖）
 .github/workflows/
   pages.yml             推送到 GitHub Pages，每天刷新一次清单
@@ -47,21 +48,25 @@ npm run preview      # http://127.0.0.1:5180/
 
 ```bash
 # PowerShell
-$env:CRABNEBULA_TOKEN = "<Cloud token>"; npm run sync
+$env:CRABNEBULA_TOKEN = '<Cloud API key>'; npm run sync
 
 # bash
-CRABNEBULA_TOKEN=<Cloud token> npm run sync
+CRABNEBULA_TOKEN='<Cloud API key>' npm run sync
 ```
 
-- Token 在 Cloud 的 **Settings → API keys** 建，给这个组织读权限即可。
-- 不给 token 时脚本什么都不写、正常退出（`npm run sync:offline` 等价），签入的清单继续生效——静态页本来就不需要联网调 API。CI 里不配 token 时，推送触发的部署照常，但每日定时任务会判为失败，避免「没刷新也报成功」。
+- API key 在 Cloud 组织的 **Settings → API keys** 创建，给这个组织读权限即可。沿用环境变量名 `CRABNEBULA_TOKEN`，也支持 `CRABNEBULA_API_KEY` 或官方 CLI 的 `CN_API_KEY`；按此顺序取第一个非空值。
+- API key 需要先通过 `apiKeys.authenticate` 换取短期 `accessToken`，再请求发布目录。脚本自动完成这一步；直接把 API key 当目录接口的 Bearer 会收到 `401 InvalidToken`，不能据此判断 key 已过期。密钥和访问令牌都不会写入清单或日志。
+- 不给 key 时脚本不写文件、正常退出（`npm run sync:offline` 等价），签入的清单继续生效。CI 里不配 key 时，推送触发的部署会警告；定时或手动刷新会失败，避免「没刷新也报成功」。
 - 脚本会保留旧版本已有的更新说明，不会因为新版本没带 notes 就把历史清空。
+- 只同步 `Published` 状态的版本，使用 Cloud 的 `pubDate` 作为发布日期。安装包文件名中明确的 ARM64 / x86_64 优先于更新平台字段，避免上传时填错平台造成下载误标。
+
+`npm test` 使用 Node 内置测试框架，验证认证、失败时保留原清单、发布状态与安装包映射；不需要安装依赖或提供真实 key。
 
 ## 发布到 GitHub Pages
 
 1. 新建仓库，把本目录推上去（默认分支 `main`）。
 2. 仓库 **Settings → Pages → Build and deployment → Source** 选 **GitHub Actions**。
-3. 定时刷新清单需要 **Settings → Secrets and variables → Actions** 里的仓库级 secret `CRABNEBULA_TOKEN`（对 `hbzsy` 组织有读权限）。没配也能推送部署，但每天那次定时任务会直接失败并标红——它存在的意义就是拉新版本，拉不到就不该报成功。
+3. 定时或手动刷新需要 **Settings → Secrets and variables → Actions** 里的仓库级 secret `CRABNEBULA_TOKEN`，值填 Cloud API key（对 `hbzsy` 组织有读权限）。没配也能推送部署，但刷新任务会失败并标红。
 4. 推送后工作流会发布 `public/` 目录。
 
 ## 要让外部访客真正下得了，还需要在 Cloud 上做三件事
@@ -70,13 +75,15 @@ CRABNEBULA_TOKEN=<Cloud token> npm run sync
 2. **给 Windows 安装包补上更新平台与签名**。0.3.24–0.3.27 的 Windows 包上传时没有带 `--update-platform windows-x86_64` 与签名，因此 `/update/windows-x86_64/<version>?channel=prod` 返回 400 `Unknown update platform`，应用内的「检查更新」看不到 Windows 正式版。下次上传时：
 
    ```bash
-   cn release upload pointcloud-studio \
+   cn release upload hbzsy/pointcloud-studio "<版本>" \
      --update-platform windows-x86_64 \
      --file "PointCloud Studio_<版本>_x64-setup.exe" \
-     --signature "<同名 .sig 文件内容>"
+     --signature "PointCloud Studio_<版本>_x64-setup.exe.sig"
    ```
 
-   CI 里用 `crabnebula-dev/cloud-release@v0`、`command: release upload <APP> --framework tauri` 时，Tauri 的 updater 产物（`.sig`）会被一并上传，平台也会按 bundle 类型自动填。
+   `--signature` 接收 `.sig` 文件路径；同目录存在“安装包完整文件名 + `.sig`”时可以省略，CLI 会自动读取。ARM64 Linux 安装包的更新平台应填 `linux-aarch64`，x86_64 包填 `linux-x86_64`。
+
+   CI 里用 `crabnebula-dev/cloud-release@v0`、`command: release upload <APP> --framework tauri` 时，CLI 会自动读取 Tauri 产物的签名，平台也会按 bundle 类型自动填。
 3. **发 macOS 包**（如果要支持 macOS）。目前清单里没有 `darwin-aarch64` / `darwin-x86_64` 的任何文件，页面如实写「还没有已发布的安装包」。
 
 ## 维护约定
