@@ -5,6 +5,10 @@
 .reading:first-child { border-start-start-radius: var(--radius-card); border-start-end-radius: var(--radius-card); }
 .reading:last-child { border-end-start-radius: var(--radius-card); border-end-end-radius: var(--radius-card); }
 
+/* 倾斜时卡片自成层叠上下文；展开格式菜单的卡片必须压在后续卡片之上。 */
+.reading:has(details[open]) { z-index: var(--z-raised); }
+.reading { transform-style: flat; will-change: auto; }
+
 .picker { position: relative; }
 .picker[open] { z-index: var(--z-raised); }
 .picker__menu {

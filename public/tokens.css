@@ -1,26 +1,39 @@
-/* Hallmark · tokens: Console (graphite) · theme build · v2.0.0
- * The theme's tokens and the shared scale. Rules live in style.css. */
+/* Hallmark · tokens: Console (graphite · night station) · theme build · v3.0.0
+ * The theme's tokens and the shared scale. Rules live in style.css.
+ * v3: 底色加深为夜间控制台，新增玻璃、光晕、弹簧缓动；既有令牌名保持兼容。 */
 
-@import url("https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500&family=Atkinson+Hyperlegible+Mono:wght@400;500&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500;600&family=Atkinson+Hyperlegible+Mono:wght@400;500&display=swap");
 
 :root {
-  /* ground, three lightnesses of graphite, no lamp */
-  --color-paper: oklch(17% 0.008 250);
-  --color-paper-2: oklch(21% 0.009 250);
-  --color-paper-3: oklch(13.5% 0.007 250);
+  /* ground：三档更深的石墨，站台在夜里 */
+  --color-paper: oklch(14.5% 0.011 258);
+  --color-paper-2: oklch(18.5% 0.012 258);
+  --color-paper-3: oklch(11.5% 0.010 258);
+
+  /* glass：面板的透明表面与发丝线，用于导航、下载面板与表格 */
+  --color-glass: oklch(21% 0.012 258 / 0.52);
+  --color-glass-strong: oklch(24% 0.013 258 / 0.78);
+  --glass-line: oklch(100% 0 0 / 0.08);
+  --glass-line-strong: oklch(100% 0 0 / 0.14);
+
+  /* 氛围光：琥珀属于人，冷蓝属于仪器；只作阴影与光晕，不作大面积底色 */
+  --glow-accent: oklch(82% 0.15 80 / 0.16);
+  --glow-cool: oklch(77% 0.12 245 / 0.14);
 
   /* pale ink over the ground */
-  --color-ink: oklch(95% 0.005 250);
-  --color-ink-2: oklch(83% 0.008 250);
-  --color-muted: oklch(71% 0.01 250);
-  --color-rule: oklch(31% 0.01 250);
-  --color-rule-2: oklch(42% 0.012 250);
+  --color-ink: oklch(96% 0.004 250);
+  --color-ink-2: oklch(85% 0.008 250);
+  --color-muted: oklch(72% 0.01 250);
+  --color-rule: oklch(27% 0.012 256);
+  --color-rule-2: oklch(38% 0.014 256);
 
   /* amber is a person, cool is an instrument */
   --color-accent: oklch(82% 0.15 80);
+  --color-accent-2: oklch(88% 0.11 86);
   --color-accent-ink: oklch(18% 0.04 75);
   --color-accent-soft: oklch(29% 0.05 80);
-  --color-cool: oklch(77% 0.12 245);
+  --color-cool: oklch(78% 0.12 245);
+  --color-cool-2: oklch(86% 0.07 235);
   --color-cool-soft: oklch(29% 0.05 245);
   --color-focus: oklch(82% 0.15 80);
 
@@ -28,13 +41,18 @@
   --font-body: var(--font-display);
   --font-outlier: "Atkinson Hyperlegible Mono", "Cascadia Mono", ui-monospace, "Microsoft YaHei", monospace;
 
-  --radius-card: 10px;
-  --radius-pill: 6px;
+  --radius-card: 16px;
+  --radius-pill: 9px;
   --rule-hair: 1px;
-  --shadow-card: none;
-  --shadow-popover: 0 12px 32px oklch(0% 0 0 / 0.35);
-  --tracking-display: -0.03em;
+  --shadow-card: 0 1px 2px oklch(0% 0 0 / 0.35), 0 14px 36px -18px oklch(0% 0 0 / 0.55);
+  --shadow-panel: 0 1px 0 oklch(100% 0 0 / 0.05) inset, 0 32px 72px -32px oklch(0% 0 0 / 0.75);
+  --shadow-popover: 0 18px 48px -12px oklch(0% 0 0 / 0.6), 0 2px 10px oklch(0% 0 0 / 0.4);
+  --shadow-glow-accent: 0 1px 0 oklch(100% 0 0 / 0.22) inset, 0 10px 32px -8px oklch(82% 0.15 80 / 0.5);
+  --tracking-display: -0.035em;
   --display-weight: 500;
+
+  /* 噪点纹理，叠加在所有背景层之上，给纯色表面一点胶片颗粒 */
+  --noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
 
   --space-3xs: 2px; --space-2xs: 4px; --space-xs: 8px; --space-sm: 12px; --space-md: 16px;
   --space-lg: 24px; --space-xl: 40px; --space-2xl: 64px; --space-3xl: 96px; --space-4xl: 144px;
@@ -50,6 +68,7 @@
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.35, 0.4, 1);
   --dur-micro: 120ms;
   --dur-short: 220ms;
   --dur-long: 420ms;
@@ -62,5 +81,5 @@
   --gap-columns: 32px;
   --section-gap: 112px;
 
-  --z-base: 1; --z-raised: 10; --z-sticky-nav: 300;
+  --z-scene: 0; --z-base: 1; --z-raised: 10; --z-sticky-nav: 300; --z-progress: 400;
 }

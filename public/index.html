@@ -6,6 +6,13 @@
 <title>下载 PointCloud Studio</title>
 <meta name="description" content="PointCloud Studio 的公开下载页：Windows、Linux x86_64 / ARM64 与 Android 安装包、文件大小、发布日期和版本记录，直接来自 CrabNebula CDN。">
 <meta name="color-scheme" content="dark">
+<script>
+/* 仅在支持动画、未要求减弱动效时启用入场编排；2.6 秒兜底强制显示内容。 */
+if ("animate" in Element.prototype && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+  document.documentElement.classList.add("motion");
+  window.__motionGuard = setTimeout(function () { document.documentElement.classList.remove("motion"); }, 2600);
+}
+</script>
 <meta property="og:title" content="下载 PointCloud Studio">
 <meta property="og:description" content="Windows、Linux x86_64 / ARM64 与 Android 安装包、文件大小和发布日期，由 CrabNebula CDN 直接提供。">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -13,11 +20,13 @@
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="downloads.css">
 <script src="app.js" defer></script>
+<script src="motion.js" defer></script>
 <script type="module" src="releases-refresh.js"></script>
 <noscript><style>.platforms { display: none; }</style></noscript>
 </head>
 <body>
 <a class="skip" href="#downloads">跳到下载</a>
+<div class="scroll-progress" aria-hidden="true"></div>
 
 <nav class="site-nav">
   <div class="container site-nav__inner">
@@ -31,6 +40,7 @@
 </nav>
 
 <header class="hero" id="downloads">
+  <div class="hero__scene" aria-hidden="true"><canvas class="hero__canvas"></canvas></div>
   <div class="container hero__grid">
     <div class="hero__text">
       <h1>下载 PointCloud Studio</h1>

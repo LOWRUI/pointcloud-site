@@ -27,6 +27,7 @@ public/                 部署上去的就是这个目录
   releases-model.js     架构分组、版本选择与格式化
   releases-view.js      浏览器与静态生成共用的 HTML 渲染
   app.js                平台筛选与格式选择，不依赖清单请求或模块加载
+  motion.js             可选增强：首屏雷达点云 3D 场景、入场与交互动效（无依赖，减弱动效时静态）
   releases-refresh.js   可选增强：刷新清单与失败提示
   releases.json         版本与文件清单（唯一数据源）
   favicon.svg
