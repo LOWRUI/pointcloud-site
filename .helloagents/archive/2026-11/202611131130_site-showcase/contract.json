@@ -1,0 +1,47 @@
+{
+  "updatedAt": "2026-11-13T03:11:54.017Z",
+  "version": 2,
+  "source": "manual",
+  "originCommand": "build",
+  "qaMode": "standard",
+  "qaFocus": [
+    "资源完整性",
+    "动效生命周期",
+    "截图真实性",
+    "下载回归"
+  ],
+  "ui": {
+    "required": true,
+    "designContract": true,
+    "sourcePriority": [
+      "plan.md",
+      ".helloagents/DESIGN.md",
+      "hello-ui"
+    ],
+    "styleAdvisor": {
+      "required": false,
+      "reason": "",
+      "focus": []
+    },
+    "visualValidation": {
+      "required": true,
+      "reason": "真实截图展示与点云恢复需要浏览器验证",
+      "screens": [
+        "1280x800",
+        "375x812"
+      ],
+      "states": [
+        "默认",
+        "减弱动效",
+        "无脚本",
+        "资源失败"
+      ]
+    }
+  },
+  "advisor": {
+    "required": false,
+    "reason": "",
+    "focus": [],
+    "preferredSources": []
+  }
+}

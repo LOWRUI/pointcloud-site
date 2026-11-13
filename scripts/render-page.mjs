@@ -3,6 +3,7 @@ import { readFile, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { renderReadings, renderReleases, renderStamp } from "../public/releases-view.js";
+import { checkSite } from "./check-site.mjs";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -33,8 +34,10 @@ export async function renderPage({ root = repoRoot, data } = {}) {
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
-  renderPage().then((changed) => {
+  renderPage().then(async (changed) => {
+    const files = await checkSite();
     console.log(changed ? "已根据版本清单更新 public/index.html。" : "public/index.html 与版本清单一致。");
+    console.log(`页面资源检查通过：${files.length} 个本地文件。`);
   }).catch((error) => {
     console.error(`页面生成失败：${error.message}`);
     process.exitCode = 1;

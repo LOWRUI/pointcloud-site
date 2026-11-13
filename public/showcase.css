@@ -1,0 +1,77 @@
+.showcase figure { margin: 0; }
+
+.showcase__image-link {
+  display: block;
+  border-radius: var(--radius-card);
+  cursor: zoom-in;
+  outline-offset: 6px;
+}
+
+.showcase__image-link:focus-visible {
+  outline: 2px solid var(--color-focus);
+}
+
+.showcase__caption {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-xs) var(--space-lg);
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+}
+
+.showcase__caption span:first-child { color: var(--color-ink-2); }
+
+.showcase__detail {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 500px);
+  gap: var(--space-2xl);
+  align-items: center;
+  margin-top: var(--space-2xl);
+}
+
+.showcase__copy h3 {
+  font-size: var(--text-title);
+  font-weight: var(--display-weight);
+  margin-bottom: var(--space-lg);
+}
+
+.showcase__features { margin: 0; }
+
+.showcase__features > div {
+  padding-block: var(--space-md);
+  border-top: var(--rule-hair) solid var(--color-rule);
+}
+
+.showcase__features dt { color: var(--color-ink); font-weight: 500; }
+.showcase__features dd { margin: var(--space-xs) 0 0; color: var(--color-muted); }
+.showcase__privacy { margin-top: var(--space-lg); color: var(--color-muted); font-size: var(--text-sm); }
+
+.showcase__tool img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-card);
+  border: var(--rule-hair) solid var(--glass-line-strong);
+  box-shadow: var(--shadow-panel);
+}
+
+.showcase__tool figcaption {
+  margin-top: var(--space-md);
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+}
+
+@media (max-width: 760px) {
+  .showcase__detail { grid-template-columns: 1fr; gap: var(--space-xl); margin-top: var(--space-xl); }
+  .showcase__tool { width: min(100%, 500px); justify-self: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .showcase .shot img { transform: none; }
+  .motion .site-nav,
+  .motion .hero__scene,
+  .motion .hero__text > *,
+  .motion [data-downloads] .readings,
+  .motion [data-downloads] .readings > * { opacity: 1; }
+}

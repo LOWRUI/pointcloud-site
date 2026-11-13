@@ -6,6 +6,7 @@
   "description": "PointCloud Studio 的公开下载站：纯静态页面，文件直连 CrabNebula CDN。",
   "scripts": {
     "build": "node scripts/render-page.mjs",
+    "check:assets": "node scripts/check-site.mjs --tracked",
     "test": "node --test",
     "sync": "node scripts/fetch-releases.mjs",
     "sync:offline": "node scripts/fetch-releases.mjs --offline",

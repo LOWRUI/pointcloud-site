@@ -19,7 +19,9 @@ if ("animate" in Element.prototype && !matchMedia("(prefers-reduced-motion: redu
 <link rel="stylesheet" href="tokens.css">
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="downloads.css">
+<link rel="stylesheet" href="showcase.css">
 <script src="app.js" defer></script>
+<script src="radar-scene.js" defer></script>
 <script src="motion.js" defer></script>
 <script type="module" src="releases-refresh.js"></script>
 <noscript><style>.platforms { display: none; }</style></noscript>
@@ -120,11 +122,37 @@ if ("animate" in Element.prototype && !matchMedia("(prefers-reduced-motion: redu
   </div>
 </header>
 
-<section class="section">
+<section class="section showcase" id="interface" aria-labelledby="interface-title">
   <div class="container">
-    <div class="shot">
-      <img src="assets/live-main.png" width="1486" height="853" alt="PointCloud Studio 接入雷达后的主界面：左侧设备连接与状态信息，中间点云视图与坐标网格，右侧选择结果与离线文件。">
-      <p class="shot__caption">接入 763C 雷达后的实时画面。左侧是设备连接与状态栏指标，中间是点云与坐标网格，右侧是选择结果与离线文件。</p>
+    <div class="section__head">
+      <h2 id="interface-title">软件界面</h2>
+      <p>从 PCAP 回放到反射率着色，直接查看软件的实际运行画面。</p>
+    </div>
+    <figure class="shot">
+      <a class="showcase__image-link" href="assets/studio-playback.jpg" target="_blank" rel="noopener" aria-label="查看点云回放主界面大图（新标签页）">
+        <img src="assets/studio-playback.jpg" width="1339" height="768" loading="lazy" decoding="async" alt="PointCloud Studio 的 760A 离线点云回放：道路、车辆、树木与标志牌以反射率着色，左右侧栏显示设备状态和离线文件，底部提供逐帧回放。">
+      </a>
+      <figcaption class="showcase__caption">
+        <span>760A 离线回放 · 道路点云与完整工作区</span>
+        <span>点击图片查看大图</span>
+      </figcaption>
+    </figure>
+    <div class="showcase__detail">
+      <div class="showcase__copy">
+        <h3>在同一个工作区里，观察与分析</h3>
+        <dl class="showcase__features">
+          <div><dt>逐帧查看</dt><dd>从时间轴定位到目标帧，用前后帧控制核对细节。</dd></div>
+          <div><dt>反射率着色</dt><dd>切换雷达默认、暮光热力或石墨冰川预设，也可自定义颜色节点。</dd></div>
+          <div><dt>独立工具窗</dt><dd>渲染设置单独展开，点云视口与操作工具各有位置。</dd></div>
+        </dl>
+        <p class="showcase__privacy">截图取自软件实际运行；本地文件名与路径已遮挡。</p>
+      </div>
+      <figure class="showcase__tool">
+        <a class="showcase__image-link" href="assets/studio-render-colors.png" target="_blank" rel="noopener" aria-label="查看渲染颜色设置大图（新标签页）">
+          <img src="assets/studio-render-colors.png" width="500" height="424" loading="lazy" decoding="async" alt="渲染设置中的反射率颜色映射，展示三种真实颜色预设与自定义颜色节点入口。">
+        </a>
+        <figcaption>渲染颜色设置 · 反射率颜色映射</figcaption>
+      </figure>
     </div>
   </div>
 </section>

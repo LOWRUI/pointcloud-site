@@ -81,12 +81,15 @@ jobs:
           test -f public/index.html
           test -f public/releases.json
           node --check public/app.js
+          node --check public/radar-scene.js
+          node --check public/motion.js
           node --check public/releases-refresh.js
           node --check public/releases-model.js
           node --check public/releases-view.js
           node --check scripts/render-page.mjs
           node -e "JSON.parse(require('node:fs').readFileSync('public/releases.json', 'utf8'))"
           npm test
+          npm run check:assets
 
       - uses: actions/configure-pages@v6
 

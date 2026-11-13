@@ -9,7 +9,7 @@
 
 - **下载区**：Windows、Linux、Android 的最新版本、发布日期、文件大小与下载入口。Linux 分 x86_64 和 ARM64 两栏，各自选择最新稳定版、各自提供 deb / AppImage / rpm 格式；某个架构更新较慢时仍保留它自己的最新版本。Android 提供 APK；没有安装包的平台如实显示暂无。
 - **格式选择**：下载按钮展开悬浮列表，不撑高页面；屏幕底部空间不足时向上展开，点击外部、按 Escape 或选择格式后收起。
-- **界面截图**：`public/assets/live-main.png`，取自软件真实运行画面。
+- **界面截图**：760A 道路点云离线回放主界面与反射率颜色设置，取自软件实际运行；本地文件名、路径已遮挡，点击图片可查看大图。图片延迟加载，指定尺寸防止加载时跳动。
 - **版本记录**：全部 / Windows / Linux x86_64 / Linux ARM64 / Android，只有实际有安装包的平台才出现筛选按钮；文件按发布时间倒序列出，显示版本、更新要点、文件名、大小、发布日期和下载链接。
 - **安装**：Windows 的 SmartScreen 提示、Linux 的架构识别和 deb / AppImage / rpm 安装、Android 的安装来源与 APK 签名要求。文件名标记为 unsigned 的 Android 包在下载区提示需先签名。
 
@@ -27,14 +27,18 @@ public/                 部署上去的就是这个目录
   releases-model.js     架构分组、版本选择与格式化
   releases-view.js      浏览器与静态生成共用的 HTML 渲染
   app.js                平台筛选与格式选择，不依赖清单请求或模块加载
-  motion.js             可选增强：首屏雷达点云 3D 场景、入场与交互动效（无依赖，减弱动效时静态）
+  radar-scene.js        可选增强：首屏雷达点云场景，后台/离屏暂停，减弱动效时静态
+  motion.js             可选增强：入场、卡片反馈、筛选指示器、命令复制；失败不隐藏下载入口
+  showcase.css          真实截图与设置细节展示
   releases-refresh.js   可选增强：刷新清单与失败提示
   releases.json         版本与文件清单（唯一数据源）
   favicon.svg
-  assets/live-main.png  软件界面截图
+  assets/studio-playback.jpg      脱敏后的点云回放截图
+  assets/studio-render-colors.png 渲染颜色设置截图
 scripts/
   fetch-releases.mjs    从 Cloud 拉清单，同时更新清单和默认下载内容
   render-page.mjs       按清单生成 index.html 中标记的区块
+  check-site.mjs        递归检查本地页面资源，发布前拒绝遗漏或未纳入 Git 的文件
   crabnebula-client.mjs 以 API key 换取访问令牌，再请求目录接口
   preview-server.mjs    本地预览（Node 自带模块，无依赖）
 .github/workflows/
@@ -70,7 +74,9 @@ CRABNEBULA_TOKEN='<Cloud API key>' npm run sync
 - 同步成功后自动生成 HTML 默认内容；不加载脚本时也能看到相同的 Linux 架构和 Android 下载。手工改清单后执行 `npm run build`，GitHub Pages 部署前也会执行该命令。
 - 页面先显示构建时的安装包，再尝试读取清单。刷新失败时保留下载入口并显示提示，已加载的筛选和格式选择仍然可用。
 
-`npm test` 使用 Node 内置测试框架，验证认证、失败保留、发布状态、架构映射、独立版本、Android、HTML 转义和静态生成；不需要安装依赖或提供真实 key。
+`npm test` 使用 Node 内置测试框架，验证认证、失败保留、发布状态、架构映射、独立版本、Android、HTML 转义、静态生成、动效生命周期和资源完整性；不需要安装依赖或提供真实 key。资源测试使用本机 Git 创建临时仓库，不修改当前仓库。
+
+`npm run build` 同时检查 HTML、样式、脚本及版本清单的本地引用是否存在且非空。提交前先将新资源加入 Git 暂存区，再运行 `npm run check:assets`，可防止“本机正常、部署漏文件”。GitHub Pages 工作流也会执行这一检查。
 
 ## 发布到 GitHub Pages
 
