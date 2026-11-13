@@ -134,11 +134,99 @@ export function sortedAssets(assets) {
   return [...assets].sort((a, b) => rank(a.kind) - rank(b.kind));
 }
 
+function sortedReleases(data) {
+  return [...data.releases]
+    .sort((a, b) => (Date.parse(b.publishedAt) || 0) - (Date.parse(a.publishedAt) || 0) || compareVersions(b.version, a.version));
+}
+
 /** 展开版本文件，按发布时间倒序；没有日期时以版本号排序。 */
 export function releaseRows(data) {
-  return [...data.releases]
-    .sort((a, b) => (Date.parse(b.publishedAt) || 0) - (Date.parse(a.publishedAt) || 0) || compareVersions(b.version, a.version))
-    .flatMap((release) => release.assets.map((asset) => ({ release, asset })));
+  return sortedReleases(data).flatMap((release) => release.assets.map((asset) => ({ release, asset })));
+}
+
+const slug = (value) => String(value ?? "").toLowerCase().replace(/[^a-z0-9.]+/g, "-");
+
+/** 版本详情的锚点：同版本可能同时存在于稳定与预览通道，两者各有一份说明。 */
+export function detailId(release) {
+  return `release-${slug(release.version)}_${slug(release.channel ?? "prod")}`;
+}
+
+/** 每个版本一份详情；同版本同通道分批上传的记录合并文件，说明取最先出现的非空内容。 */
+export function releaseDetails(data) {
+  const details = new Map();
+  for (const release of sortedReleases(data)) {
+    const id = detailId(release);
+    const current = details.get(id);
+    details.set(id, current ? {
+      ...mergeBuilds(current, release),
+      summary: current.summary || release.summary,
+      notes: current.notes || release.notes,
+    } : { ...release, detailId: id });
+  }
+  return [...details.values()];
+}
+
+const HAN = /\p{Script=Han}/u;
+const ASCII = /[\x21-\x7e]/;
+const RULE = /^(?:={3,}|-{3,}|_{3,}|\*{3,}|~{3,})$/;
+const BULLET = /^(?:[-*+•·]|\d+[.)、])\s+(.+)$/;
+const VERSION_HEADING = /^(?:#{1,6}\s*)?v?\d+(?:\.\d+)+[\w.+-]*(?:\s+[-–—:：(（].*)?$/i;
+
+/** 拼接被硬换行拆开的句子：中文之间不加空格，中英文或英文之间补一个。 */
+function joinWrapped(head, tail) {
+  const left = head.slice(-1);
+  const right = tail.slice(0, 1);
+  const gap = ASCII.test(left) ? ASCII.test(right) || HAN.test(right) : HAN.test(left) && ASCII.test(right);
+  return `${head}${gap ? " " : ""}${tail}`;
+}
+
+/** 去掉 Markdown 的加粗与行内代码标记，正文始终按纯文本显示。 */
+function plainText(text) {
+  return text.replace(/\*\*(.+?)\*\*/g, "$1").replace(/`([^`]+)`/g, "$1");
+}
+
+/**
+ * 将更新说明拆成小节：`[{ title, paragraphs, items }]`。
+ * 文档标题、版本标题和装饰线不进入正文，这些信息由页面自己的标题呈现。
+ */
+export function parseNotes(notes) {
+  const lines = String(notes ?? "").replace(/\r\n?/g, "\n").split("\n");
+  const sections = [];
+  let open = null; // 当前可被续行追加的列表：某一小节的 items 或 paragraphs
+  const addSection = (title) => sections.push({ title, paragraphs: [], items: [] });
+  const current = () => {
+    if (!sections.length) addSection("");
+    return sections[sections.length - 1];
+  };
+  const append = (list, text) => {
+    if (open === list) list[list.length - 1] = joinWrapped(list[list.length - 1], text);
+    else list.push(text);
+    open = list;
+  };
+  const nextText = (from) => lines.slice(from).map((line) => line.trim()).find((line) => line && !RULE.test(line)) ?? "";
+
+  lines.forEach((raw, index) => {
+    const text = plainText(raw.trim());
+    const underline = (lines[index + 1] ?? "").trim();
+    if (!text) { open = null; return; }
+    if (RULE.test(text)) return;
+
+    const bullet = text.match(BULLET);
+    if (bullet) {
+      open = null;
+      append(current().items, bullet[1]);
+    } else if (open && /^\s/.test(raw)) {
+      append(open, text);
+    } else if (/^={3,}$/.test(underline) || VERSION_HEADING.test(text)) {
+      open = null;
+    } else if (/^#{1,6}\s/.test(text) || /^-{3,}$/.test(underline) || (text.length <= 40 && BULLET.test(nextText(index + 1)))) {
+      addSection(text.replace(/^#{1,6}\s+/, "").replace(/[:：]$/, ""));
+      open = null;
+    } else {
+      append(current().paragraphs, text);
+    }
+  });
+  return sections.filter((section) => section.title || section.paragraphs.length || section.items.length);
 }
 
 /** 页脚的清单数量与同步日期。 */

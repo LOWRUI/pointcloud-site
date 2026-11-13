@@ -1,6 +1,6 @@
 import {
-  PLATFORMS, KIND_HINT, KIND_LABEL, assetUrl, dateText, isStable,
-  latestDownloads, platformMeta, releaseRows, sizeText, sortedAssets, stampText, validateSnapshot,
+  PLATFORMS, KIND_HINT, KIND_LABEL, assetUrl, dateText, detailId, isStable, latestDownloads,
+  parseNotes, platformMeta, releaseDetails, releaseRows, sizeText, sortedAssets, stampText, validateSnapshot,
 } from "./releases-model.js";
 
 /** 所有来自发布清单的文本和属性均以纯文本插入。 */
@@ -15,6 +15,12 @@ const e = escapeHtml;
 function channelChip(channel) {
   return isStable(channel) ? '<span class="chip">稳定版</span>'
     : '<span class="chip chip--alpha">预览版</span>';
+}
+
+/** 版本号即详情入口：有脚本时打开弹层，无脚本时由锚点定位到同一份内容。 */
+function versionLink(release, className) {
+  const id = detailId(release);
+  return `<a class="${className}" href="#${e(id)}" data-release-detail="${e(id)}" aria-haspopup="dialog" aria-label="查看 ${e(release.version)} ${isStable(release.channel) ? "稳定版" : "预览版"}的更新说明">${e(release.version)}</a>`;
 }
 
 function formatLink(asset, meta) {
@@ -42,7 +48,7 @@ function buildContent(meta, build, primary = false) {
   const format = build.assets.length > 1 ? `${build.assets.length} 种格式`
     : `${sizeText(build.assets[0].bytes)} · ${KIND_LABEL[build.assets[0].kind] ?? build.assets[0].kind}`;
   const unsigned = meta.key === "android" && build.assets.some((asset) => /(?:^|[-_.])unsigned(?:[-_.]|$)/i.test(asset.filename));
-  return `<div class="reading__value">${e(build.version)}</div>
+  return `<div class="reading__value">${versionLink(build, "reading__link")}</div>
 <div class="reading__when"><span>${e(dateText(build.publishedAt))}</span><span>${e(format)}</span>${!build.stable ? channelChip(build.channel) : ""}</div>
 <div class="reading__actions">${downloadAction(meta, build, primary)}</div>
 ${unsigned ? '<p class="reading__note">文件名标记为未签名，安装前请确认已完成 APK 签名。</p>' : ""}`;
@@ -98,13 +104,67 @@ function releaseRow({ release, asset }) {
   const meta = platformMeta(asset.platform);
   const label = meta.os === "Android" ? "Android APK" : `${meta.os} ${meta.arch}`.trim();
   return `<tr data-platform="${e(asset.platform)}">
-<td data-th="版本"><span class="releases__version">${e(release.version)}</span> ${channelChip(release.channel)}</td>
+<td data-th="版本">${versionLink(release, "releases__version")} ${channelChip(release.channel)}</td>
 <td data-th="更新要点">${e(release.summary ?? "—")}</td>
 <td data-th="文件"><span class="releases__os">${e(label)}</span><span class="releases__file">${e(asset.filename)}</span></td>
 <td data-th="大小" class="releases__num">${e(sizeText(asset.bytes))}</td>
 <td data-th="发布日期" class="releases__num">${e(dateText(release.publishedAt))}</td>
 <td data-th="下载"><a class="releases__get" href="${e(assetUrl(asset.id))}" download aria-label="下载 ${e(asset.filename)}">下载</a></td>
 </tr>`;
+}
+
+/** 条目开头「主题：说明」的短主题加重显示，长段落更容易扫读。 */
+function noteItem(text) {
+  const lead = text.match(/^([^：，。；]{2,28})：(?=.)/);
+  return lead ? `<li><strong>${e(lead[1])}</strong>：${e(text.slice(lead[0].length))}</li>` : `<li>${e(text)}</li>`;
+}
+
+function noteSection({ title, paragraphs, items }) {
+  return `<section class="release-detail__section">
+${title ? `<h4>${e(title)}</h4>\n` : ""}${paragraphs.map((text) => `<p>${e(text)}</p>\n`).join("")}${items.length ? `<ul class="release-detail__list">\n${items.map(noteItem).join("\n")}\n</ul>\n` : ""}</section>`;
+}
+
+function detailFile(asset) {
+  const meta = platformMeta(asset.platform);
+  const label = meta.os === "Android" ? "Android" : `${meta.os} ${meta.arch}`.trim();
+  return `<li class="release-detail__file">
+<span class="release-detail__os">${e(label)} · ${e(KIND_LABEL[asset.kind] ?? asset.kind)}</span>
+<span class="release-detail__name">${e(asset.filename)}</span>
+<span class="release-detail__size">${e(sizeText(asset.bytes))}</span>
+<a class="releases__get" href="${e(assetUrl(asset.id))}" download aria-label="下载 ${e(asset.filename)}">下载</a>
+</li>`;
+}
+
+function detailFiles(assets) {
+  const order = (asset) => {
+    const index = PLATFORMS.findIndex((meta) => meta.key === asset.platform);
+    return index < 0 ? PLATFORMS.length : index;
+  };
+  return sortedAssets(assets).sort((a, b) => order(a) - order(b)).map(detailFile).join("\n");
+}
+
+/** 单个版本的完整更新说明与该版本的全部安装包。 */
+function releaseDetail(release) {
+  const id = release.detailId;
+  const sections = parseNotes(release.notes);
+  return `<dialog class="release-detail" id="${e(id)}" aria-labelledby="${e(id)}-title">
+<article class="release-detail__panel">
+<header class="release-detail__head">
+<p class="release-detail__meta"><span class="release-detail__version">${e(release.version)}</span> ${channelChip(release.channel)} <span class="release-detail__date">${e(dateText(release.publishedAt))} 发布</span></p>
+<h3 id="${e(id)}-title">${e(release.summary || "更新说明")}</h3>
+<a class="release-detail__close" href="#releases" data-release-close aria-label="关闭更新说明"></a>
+</header>
+<div class="release-detail__body">
+${sections.length ? sections.map(noteSection).join("\n") : '<p class="release-detail__empty">这个版本没有附带更新说明。</p>'}
+<section class="release-detail__section">
+<h4>安装包 <span class="release-detail__count">${release.assets.length}</span></h4>
+<ul class="release-detail__files">
+${detailFiles(release.assets)}
+</ul>
+</section>
+</div>
+</article>
+</dialog>`;
 }
 
 /** 文件记录及其平台筛选，筛选栏随 HTML 直接显示。 */
@@ -117,7 +177,10 @@ export function renderReleases(data) {
 <thead><tr><th scope="col">版本</th><th scope="col">更新要点</th><th scope="col">文件</th><th scope="col">大小</th><th scope="col">发布日期</th><th scope="col"><span class="visually-hidden">下载</span></th></tr></thead>
 <tbody>${rows.map(releaseRow).join("\n")}</tbody>
 </table></div>
-<p class="table-hint" role="status" aria-live="polite" data-filter-status>共 ${rows.length} 个安装包；窄屏下按文件竖排。</p>`;
+<p class="table-hint" role="status" aria-live="polite" data-filter-status>共 ${rows.length} 个安装包；窄屏下按文件竖排。</p>
+<div class="release-details">
+${releaseDetails(data).map(releaseDetail).join("\n")}
+</div>`;
 }
 
 /** 带清单同步日期的页脚内容。 */
